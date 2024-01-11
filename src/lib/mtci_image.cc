@@ -2,7 +2,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define BYTE_BOUND(value) value < 0 ? 0 : (value > 255 ? 255 : value)
 
-#include "Image.h"
+#include "mtci_image.h"
+
 #include "stb_image.h"
 #include "stb_image_write.h"
 

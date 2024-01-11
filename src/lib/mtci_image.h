@@ -1,3 +1,6 @@
+#ifndef SRC_LIB_MTCI_IMAGE_H
+#define SRC_LIB_MTCI_IMAGE_H
+
 #include <stdint.h>
 
 #include <complex>
@@ -47,3 +50,5 @@ struct Image {
   Image& flipX();
   Image& flipY();
 };
+
+#endif  // !SRC_LIB_MTCI_IMAGE_H

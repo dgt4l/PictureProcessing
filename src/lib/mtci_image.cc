@@ -4,8 +4,8 @@
 
 #include "mtci_image.h"
 
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include "../include/stb_image.h"
+#include "../include/stb_image_write.h"
 
 Image::Image(const char* filename, int channel_force) {
   if (read(filename, channel_force)) {
@@ -173,116 +173,121 @@ Image& Image::std_convolve_cyclic(uint8_t channel, uint32_t ker_w,
 }
 
 void Image::fft(uint32_t n, std::complex<double> x[], std::complex<double>* X) {
-	//x in standard order
-	if(x != X) {
-		memcpy(X, x, n*sizeof(std::complex<double>));
-	}
+  // x in standard order
+  if (x != X) {
+    memcpy(X, x, n * sizeof(std::complex<double>));
+  }
 
-	//Gentleman-Sande butterfly
-	uint32_t sub_probs = 1;
-	uint32_t sub_prob_size = n;
-	uint32_t half;
-	uint32_t i;
-	uint32_t j_begin;
-	uint32_t j_end;
-	uint32_t j;
-	std::complex<double> w_step;
-	std::complex<double> w;
-	std::complex<double> tmp1, tmp2;
-	while(sub_prob_size>1) {
-		half = sub_prob_size>>1;
-		w_step = std::complex<double>(cos(-2*M_PI/sub_prob_size), sin(-2*M_PI/sub_prob_size));
-		for(i=0; i<sub_probs; ++i) {
-			j_begin = i*sub_prob_size;
-			j_end = j_begin+half;
-			w = std::complex<double>(1,0);
-			for(j=j_begin; j<j_end; ++j) {
-				tmp1 = X[j];
-				tmp2 = X[j+half];
-				X[j] = tmp1+tmp2;
-				X[j+half] = (tmp1-tmp2)*w;
-				w *= w_step;
-			}
-		}
-		sub_probs <<= 1;
-		sub_prob_size = half;
-	}
-	//X in bit reversed order
+  // Gentleman-Sande butterfly
+  uint32_t sub_probs = 1;
+  uint32_t sub_prob_size = n;
+  uint32_t half;
+  uint32_t i;
+  uint32_t j_begin;
+  uint32_t j_end;
+  uint32_t j;
+  std::complex<double> w_step;
+  std::complex<double> w;
+  std::complex<double> tmp1, tmp2;
+  while (sub_prob_size > 1) {
+    half = sub_prob_size >> 1;
+    w_step = std::complex<double>(cos(-2 * M_PI / sub_prob_size),
+                                  sin(-2 * M_PI / sub_prob_size));
+    for (i = 0; i < sub_probs; ++i) {
+      j_begin = i * sub_prob_size;
+      j_end = j_begin + half;
+      w = std::complex<double>(1, 0);
+      for (j = j_begin; j < j_end; ++j) {
+        tmp1 = X[j];
+        tmp2 = X[j + half];
+        X[j] = tmp1 + tmp2;
+        X[j + half] = (tmp1 - tmp2) * w;
+        w *= w_step;
+      }
+    }
+    sub_probs <<= 1;
+    sub_prob_size = half;
+  }
+  // X in bit reversed order
 }
-void Image::ifft(uint32_t n, std::complex<double> X[], std::complex<double>* x) {
-	//X in bit reversed order
-	if(X != x) {
-		memcpy(x, X, n*sizeof(std::complex<double>));
-	}
+void Image::ifft(uint32_t n, std::complex<double> X[],
+                 std::complex<double>* x) {
+  // X in bit reversed order
+  if (X != x) {
+    memcpy(x, X, n * sizeof(std::complex<double>));
+  }
 
-	//Cooley-Tukey butterfly
-	uint32_t sub_probs = n>>1;
-	uint32_t sub_prob_size;
-	uint32_t half = 1;
-	uint32_t i;
-	uint32_t j_begin;
-	uint32_t j_end;
-	uint32_t j;
-	std::complex<double> w_step;
-	std::complex<double> w;
-	std::complex<double> tmp1, tmp2;
-	while(half<n) {
-		sub_prob_size = half<<1;
-		w_step = std::complex<double>(cos(2*M_PI/sub_prob_size), sin(2*M_PI/sub_prob_size));
-		for(i=0; i<sub_probs; ++i) {
-			j_begin = i*sub_prob_size;
-			j_end = j_begin+half;
-			w = std::complex<double>(1,0);
-			for(j=j_begin; j<j_end; ++j) {
-				tmp1 = x[j];
-				tmp2 = w*x[j+half];
-				x[j] = tmp1+tmp2;
-				x[j+half] = tmp1-tmp2;
-				w *= w_step;
-			}
-		}
-		sub_probs >>= 1;
-		half = sub_prob_size;
-	}
-	for(uint32_t i=0; i<n; ++i) {
-		x[i] /= n;
-	}
-	//x in standard order
+  // Cooley-Tukey butterfly
+  uint32_t sub_probs = n >> 1;
+  uint32_t sub_prob_size;
+  uint32_t half = 1;
+  uint32_t i;
+  uint32_t j_begin;
+  uint32_t j_end;
+  uint32_t j;
+  std::complex<double> w_step;
+  std::complex<double> w;
+  std::complex<double> tmp1, tmp2;
+  while (half < n) {
+    sub_prob_size = half << 1;
+    w_step = std::complex<double>(cos(2 * M_PI / sub_prob_size),
+                                  sin(2 * M_PI / sub_prob_size));
+    for (i = 0; i < sub_probs; ++i) {
+      j_begin = i * sub_prob_size;
+      j_end = j_begin + half;
+      w = std::complex<double>(1, 0);
+      for (j = j_begin; j < j_end; ++j) {
+        tmp1 = x[j];
+        tmp2 = w * x[j + half];
+        x[j] = tmp1 + tmp2;
+        x[j + half] = tmp1 - tmp2;
+        w *= w_step;
+      }
+    }
+    sub_probs >>= 1;
+    half = sub_prob_size;
+  }
+  for (uint32_t i = 0; i < n; ++i) {
+    x[i] /= n;
+  }
+  // x in standard order
 }
 
-void Image::dft_2D(uint32_t m, uint32_t n, std::complex<double> x[], std::complex<double>* X) {
-	//x in row-major & standard order
-	std::complex<double>* intermediate = new std::complex<double>[m*n];
-	//rows
-	for(uint32_t i=0; i<m; ++i) {
-		fft(n, x+i*n, intermediate+i*n);
-	}
-	//cols
-	for(uint32_t j=0; j<n; ++j) {
-		for(uint32_t i=0; i<m; ++i) {
-			X[j*m+i] = intermediate[i*n+j]; //row-major --> col-major
-		}
-		fft(m, X+j*m, X+j*m);
-	}
-	delete[] intermediate;
-	//X in column-major & bit-reversed (in rows then columns)
+void Image::dft_2D(uint32_t m, uint32_t n, std::complex<double> x[],
+                   std::complex<double>* X) {
+  // x in row-major & standard order
+  std::complex<double>* intermediate = new std::complex<double>[m * n];
+  // rows
+  for (uint32_t i = 0; i < m; ++i) {
+    fft(n, x + i * n, intermediate + i * n);
+  }
+  // cols
+  for (uint32_t j = 0; j < n; ++j) {
+    for (uint32_t i = 0; i < m; ++i) {
+      X[j * m + i] = intermediate[i * n + j];  // row-major --> col-major
+    }
+    fft(m, X + j * m, X + j * m);
+  }
+  delete[] intermediate;
+  // X in column-major & bit-reversed (in rows then columns)
 }
-void Image::idft_2D(uint32_t m, uint32_t n, std::complex<double> X[], std::complex<double>* x) {
-	//X in column-major & bit-reversed (in rows then columns)
-	std::complex<double>* intermediate = new std::complex<double>[m*n];
-	//cols
-	for(uint32_t j=0; j<n; ++j) {
-		ifft(m, X+j*m, intermediate+j*m);
-	}
-	//rows
-	for(uint32_t i=0; i<m; ++i) {
-		for(uint32_t j=0; j<n; ++j) {
-			x[i*n+j] = intermediate[j*m+i]; //row-major <-- col-major
-		}
-		ifft(n, x+i*n, x+i*n);
-	}
-	delete[] intermediate;
-	//x in row-major & standard order
+void Image::idft_2D(uint32_t m, uint32_t n, std::complex<double> X[],
+                    std::complex<double>* x) {
+  // X in column-major & bit-reversed (in rows then columns)
+  std::complex<double>* intermediate = new std::complex<double>[m * n];
+  // cols
+  for (uint32_t j = 0; j < n; ++j) {
+    ifft(m, X + j * m, intermediate + j * m);
+  }
+  // rows
+  for (uint32_t i = 0; i < m; ++i) {
+    for (uint32_t j = 0; j < n; ++j) {
+      x[i * n + j] = intermediate[j * m + i];  // row-major <-- col-major
+    }
+    ifft(n, x + i * n, x + i * n);
+  }
+  delete[] intermediate;
+  // x in row-major & standard order
 }
 
 uint32_t Image::rev(uint32_t n, uint32_t a) {

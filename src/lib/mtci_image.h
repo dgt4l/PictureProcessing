@@ -40,6 +40,14 @@ struct Image {
   Image& std_convolve_cyclic(uint8_t channel, uint32_t ker_w, uint32_t ker_h,
                              double ker[], uint32_t cr, uint32_t cc);
 
+  static void fft(uint32_t n, std::complex<double> x[], std::complex<double>* X);
+	static void ifft(uint32_t n, std::complex<double> X[], std::complex<double>* x);
+  
+	static void dft_2D(uint32_t m, uint32_t n, 
+                      std::complex<double> x[], std::complex<double>* X);
+	static void idft_2D(uint32_t m, uint32_t n, 
+                      std::complex<double> X[], std::complex<double>* x);
+
   static uint32_t rev(uint32_t n, uint32_t a);
   static void bit_rev(uint32_t n, std::complex<double> a[],
                       std::complex<double>* A);

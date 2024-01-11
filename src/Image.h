@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <complex>
 
-//legacy feature of C
 #undef __STRICT_ANSI__
 #define _USE_MATH_DEFINES 
 #include <cmath>

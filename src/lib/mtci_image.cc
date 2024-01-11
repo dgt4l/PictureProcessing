@@ -452,6 +452,7 @@ Image& Image::convolve_linear(uint8_t channel, uint32_t ker_w, uint32_t ker_h,
     return std_convolve_clamp_to_0(channel, ker_w, ker_h, ker, cr, cc);
   }
 }
+
 Image& Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
                                        uint32_t ker_h, double ker[],
                                        uint32_t cr, uint32_t cc) {
@@ -461,6 +462,7 @@ Image& Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
     return std_convolve_clamp_to_border(channel, ker_w, ker_h, ker, cr, cc);
   }
 }
+
 Image& Image::convolve_cyclic(uint8_t channel, uint32_t ker_w, uint32_t ker_h,
                               double ker[], uint32_t cr, uint32_t cc) {
   if (ker_w * ker_h > 224) {

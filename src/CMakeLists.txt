@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 enable_testing()
 
 
-add_library(mtci_lib.a lib/mtci_image.cc)
+add_library(mtci_lib.a lib/mtci_image.cc include/schrift.cpp)
 set_target_properties(mtci_lib.a PROPERTIES PREFIX "" SUFFIX "")
 
 # target_link_libraries(

@@ -4,7 +4,7 @@ project(mtci)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -g")
 
 # include(FetchContent)
 # FetchContent_Declare(
@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 enable_testing()
 
 
-add_library(mtci_lib.a lib/mtci_image.cc include/schrift.cpp)
+add_library(mtci_lib.a lib/mtci_image.cc util/mtci_transform.cc include/schrift.cpp)
 set_target_properties(mtci_lib.a PROPERTIES PREFIX "" SUFFIX "")
 
 # target_link_libraries(

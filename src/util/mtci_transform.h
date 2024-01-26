@@ -4,18 +4,13 @@
 #include <functional>
 
 #include "../lib/mtci_image.h"
-#include "mtci_kernel.h"
+// #include "mtci_kernel.h"
 
-class Transform {
- private:
-  Kernel kernel;
-  std::function<bool(Kernel, Image)>* apply;
-
- public:
-  Transform(Kernel _kernel, std::function<bool(Kernel, Image)>* _apply) {
-    kernel = _kernel, apply = _apply;
-  };
-  bool applyTransform(Image img);
-};
+Image apply_clarity_filter(Image img, int iterations);
+Image apply_blur_filter(Image img, int iterations);
+Image apply_embossing_filter(Image img, int iterations);
+Image apply_borders_filter(Image img, int iterations);
+Image apply_upscaling_filter(Image img, int iterations);
+Image apply_erosion_filter(Image img, int iterations);
 
 #endif  // !SRC_UTIL_MTCI_TRANSFORM_H

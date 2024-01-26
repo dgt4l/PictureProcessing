@@ -1,14 +1,19 @@
-#include "lib/mtci_image.h"
-#include "util/mtci_kernels.h"
+#include "util/mtci_transform.h"
 
 int main() {
-  Image img("../materials/kisa.jpg");
+  Image img1("../materials/kisa.jpg"), img2("../materials/kisa.jpg"),
+      img3("../materials/kisa.jpg"), img4("../materials/kisa.jpg"),
+      img5("../materials/kisa.jpg"), img6("../materials/kisa.jpg");
 
-  double *kernel = MTCI_KERNELS_CLARI;
+  apply_clarity_filter(img1, 1).write("../materials/clarity.png");
 
-  img.convolve_cyclic(0, 3, 3, kernel, 0, 0);
-  img.convolve_cyclic(1, 3, 3, kernel, 0, 0);
-  img.convolve_cyclic(2, 3, 3, kernel, 0, 0);
+  apply_blur_filter(img2, 1).write("../materials/blur.png");
 
-  img.write("../materials/output.png");
+  apply_embossing_filter(img3, 1).write("../materials/embossing.png");
+
+  apply_borders_filter(img4, 1).write("../materials/borders.png");
+
+  apply_upscaling_filter(img5, 1).write("../materials/upscaling.png");
+
+  apply_erosion_filter(img6, 1).write("../materials/erosion.png");
 }

@@ -12,7 +12,7 @@
 #endif
 
 #include "../include/schrift.h"
-#include "../util/mtci_transform.h"
+// #include "../util/mtci_transform.h"
 
 #define STEG_HEADER_SIZE sizeof(uint32_t) * 8
 

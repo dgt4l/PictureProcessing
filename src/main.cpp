@@ -1,9 +1,9 @@
 #include "util/mtci_transform.h"
 
 int main() {
-  Image img1("../materials/kisa.jpg"), img2("../materials/kisa.jpg"),
-      img3("../materials/kisa.jpg"), img4("../materials/kisa.jpg"),
-      img5("../materials/kisa.jpg"), img6("../materials/kisa.jpg");
+  Image img1("../materials/kisa.png"), img2("../materials/kisa.png"),
+      img3("../materials/kisa.png"), img4("../materials/kisa.png"),
+      img5("../materials/kisa.png"), img6("../materials/kisa.png");
 
   apply_clarity_filter(img1, 1).write("../materials/clarity.png");
 

@@ -10,10 +10,17 @@ Image iterate_cyclic(Image img, double kernel[], int iterations) {
   return img;
 }
 
+// Image apply_clarity_filter(Image img, int iterations) {
+//   double kernel[] = {0 / 1.0, -1 / 1.0,  0 / 1.0, 
+//                     -1 / 1.0,  5 / 1.0, -1 / 1.0, 
+//                      0 / 1.0, -1 / 1.0,  0 / 1.0};
+//   return iterate_cyclic(img, kernel, 1);
+// }
+
 Image apply_clarity_filter(Image img, int iterations) {
-  double kernel[] = {0 / 1.0, -1 / 1.0,  0 / 1.0, 
-                    -1 / 1.0,  5 / 1.0, -1 / 1.0, 
-                     0 / 1.0, -1 / 1.0,  0 / 1.0};
+  double kernel[] = {-1 / 1.0, -1 / 1.0,  -1 / 1.0, 
+                     -1 / 1.0,  9 / 1.0,  -1 / 1.0, 
+                     -1 / 1.0, -1 / 1.0,  -1 / 1.0};
   return iterate_cyclic(img, kernel, 1);
 }
 
@@ -24,26 +31,26 @@ Image apply_blur_filter(Image img, int iterations) {
   return iterate_cyclic(img, kernel, 7);
 }
 
-Image apply_embossing_filter(Image img, int iterations) {
+Image apply_borders_filter(Image img, int iterations) {
   double kernel[] = {-2 / 9.0, -1 / 9.0, 0 / 9.0, 
                      -1 / 9.0,  1 / 9.0, 1 / 9.0,  
                       0 / 9.0,  1 / 9.0, 2 / 9.0};
   return iterate_cyclic(img, kernel, 1);
 }
 
-// Image apply_borders_filter(Image img, int iterations) {
-//   double kernel[] = {0 / 1.0, -1 / 1.0,  0 / 1.0, 
-//                     -1 / 1.0,  4 / 1.0, -1 / 1.0, 
-//                      0 / 1.0, -1 / 1.0,  0 / 1.0};
-//   return iterate_cyclic(img, kernel, 1);
-// }
-
-Image apply_borders_filter(Image img, int iterations) {
-  double kernel[] = {1 / 1.0, 0 / 1.0, -1 / 1.0, 
-                     1 / 1.0, 0 / 1.0, -1 / 1.0, 
-                     1 / 1.0, 0 / 1.0, -1 / 1.0};
+Image apply_embossing_filter(Image img, int iterations) {
+  double kernel[] = {0 / 1.0, -1 / 1.0,  0 / 1.0, 
+                    -1 / 1.0,  4 / 1.0, -1 / 1.0, 
+                     0 / 1.0, -1 / 1.0,  0 / 1.0};
   return iterate_cyclic(img, kernel, 1);
 }
+
+// Image apply_borders_filter(Image img, int iterations) {
+//   double kernel[] = {1 / 1.0, 0 / 1.0, -1 / 1.0, 
+//                      1 / 1.0, 0 / 1.0, -1 / 1.0, 
+//                      1 / 1.0, 0 / 1.0, -1 / 1.0};
+//   return iterate_cyclic(img, kernel, 1);
+// }
 
 Image apply_upscaling_filter(Image img, int iterations) {
   double kernel[] = {0 / 1.0, 1 / 1.0, 0 / 1.0, 
@@ -52,9 +59,9 @@ Image apply_upscaling_filter(Image img, int iterations) {
   return iterate_cyclic(img, kernel, 1);
 }
 
-Image apply_erosion_filter(Image img, int iterations) {
-  double kernel[] = {1 / 10.0, 1 / 10.0, 1 / 10.0, 
-                     1 / 10.0, 5 / 10.0, 1 / 10.0, 
-                     1 / 10.0, 1 / 10.0, 1 / 10.0};
+Image apply_negative_filter(Image img, int iterations) {
+  double kernel[] = {0 / 1.0, 0 / 1.0, 0 / 1.0, 
+                     0 / 1.0, -1 / 1.0, 0 / 1.0, 
+                     0 / 1.0, 0 / 1.0, 0 / 1.0};
   return iterate_cyclic(img, kernel, 1);
 }

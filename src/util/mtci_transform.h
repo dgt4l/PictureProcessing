@@ -1,7 +1,9 @@
 #ifndef SRC_UTIL_MTCI_TRANSFORM_H
 #define SRC_UTIL_MTCI_TRANSFORM_H
 
+#include <chrono>
 #include <functional>
+#include <iostream>
 
 #include "../lib/mtci_image.h"
 // #include "mtci_kernel.h"

@@ -14,5 +14,6 @@ Image apply_embossing_filter(Image img, int iterations);
 Image apply_borders_filter(Image img, int iterations);
 Image apply_upscaling_filter(Image img, int iterations);
 Image apply_negative_filter(Image img, int iterations);
+Image iterate_cyclic(Image img, double kernel[], int iterations);
 
 #endif  // !SRC_UTIL_MTCI_TRANSFORM_H

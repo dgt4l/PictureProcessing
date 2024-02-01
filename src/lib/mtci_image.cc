@@ -113,7 +113,6 @@ Image& Image::convolve_linear(uint8_t channel, uint32_t ker_w, uint32_t ker_h,
 Image& Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
                                        uint32_t ker_h, double ker[],
                                        uint32_t cr, uint32_t cc) {
-  std::cout << w << "x" << h << std::endl;
   uint8_t* new_data = new uint8_t[w * h];
   uint64_t center = cr * ker_w + cc;
   for (uint64_t k = channel; k < size; k += channels) {

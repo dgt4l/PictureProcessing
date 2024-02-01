@@ -34,9 +34,11 @@ class MultiThreadConvert {
                      int _channels, uint8_t _channel, uint64_t _center,
                      uint32_t _cr, uint32_t _cc, uint32_t _ker_h,
                      uint32_t _ker_w, double *_ker) {
-    memcpy(data, _data, _size);
-    new_data = new uint8_t[_w * _h];
-    memcpy(new_data, _data, _size);
+    data = new uint8_t[_size];
+    memcpy(data, _data, _size * sizeof(uint8_t));
+    new_data = new uint8_t[_size];
+    memcpy(new_data, _data, _size * sizeof(uint8_t));
+    size = _size;
     w = _w;
     h = _h;
     channels = _channels;
@@ -62,7 +64,7 @@ typedef struct {
   uint64_t k;
 } data_t;
 
-extern MultiThreadConvert mtc;
+MultiThreadConvert mtc;
 
 void *thread_convertion_task(void *ptr);
 
@@ -75,20 +77,20 @@ MultiThreadConvert &MultiThreadConvert::mt_convolution(
   // uint8_t* new_data = new uint8_t[w * h];
   uint64_t center = cr * ker_w + cc;
   pthread_t pool[50];
-  mtc = MultiThreadConvert(data, size, w, h, channels, channel, center, cr, cc,
-                           ker_h, ker_w, ker);
-
   for (uint64_t k = channel; k < size; k += channels) {
     for (int i = 0; i < 100; ++i) {
       data_t data = {k};
+      k += channels;
       pthread_create(&pool[i], NULL, thread_convertion_task, &data);
+    }
+    for (int i = 0; i < 100; ++i) {
+      data_t data = {k};
+      pthread_join(pool[i], NULL);
     }
   }
   for (uint64_t k = channel; k < size; k += channels) {
     data[k] = mtc.new_data[k / channels];
   }
-  delete[] mtc.new_data;
-  delete[] mtc.data;
   return *this;
 }
 
@@ -96,12 +98,13 @@ void *thread_convertion_task(void *ptr) {
   data_t *d = (data_t *)ptr;
   uint64_t k = d->k;
   double c = 0;
+  printf("%d", k);
   for (long i = -((long)mtc.cr); i < (long)mtc.ker_h - mtc.cr; ++i) {
     long row = ((long)k / mtc.channels) / mtc.w - i;
     if (row < 0) {
-      row = row % mtc.h + mtc.h;
+      row = 0;
     } else if (row > mtc.h - 1) {
-      row %= mtc.h;
+      row = mtc.h - 1;
     }
     for (long j = -((long)mtc.cc); j < (long)mtc.ker_w - mtc.cc; ++j) {
       long col = ((long)d->k / mtc.channels) % mtc.w - j;
@@ -112,15 +115,18 @@ void *thread_convertion_task(void *ptr) {
       }
       c += mtc.ker[mtc.center + i * (long)mtc.ker_w + j] *
            mtc.data[(row * mtc.w + col) * mtc.channels + mtc.channel];
+      printf("%lf +", mtc.ker[mtc.center + i * (long)mtc.ker_w + j] *
+           mtc.data[(row * mtc.w + col) * mtc.channels + mtc.channel]);
     }
   }
   mtc.new_data[k / mtc.channels] = (uint8_t)BYTE_BOUND(round(c));
-  printf("%lf\n", c);
+  printf("[%d] %d\n", k, c);
+  //printf("%lf\n", c);
 }
 
 int main() {
   char path[] = "../materials/kisa.jpg";
-  Image img1(path), img2(path), img3(path), img4(path), img5(path), img6(path);
+  Image img1(path);
 
   auto begin = std::chrono::steady_clock::now();
 
@@ -134,7 +140,8 @@ int main() {
 
   // apply_upscaling_filter(img5, 1).write("../materials/upscaling.png");
 
-  // apply_negative_filter(img6, 1).write("../materials/negative.png");
+  //apply_negative_filter(img1, 1).write("../materials/output.png");
+  for (int i = 0; i < 1000; ++i) printf("%d\n", img1.data[i]);
   double kernel[] = {0 / 1.0, 0 / 1.0, 0 / 1.0, 0 / 1.0, -1 / 1.0,
                      0 / 1.0, 0 / 1.0, 0 / 1.0, 0 / 1.0};
   uint32_t ker_w = 3;
@@ -145,7 +152,6 @@ int main() {
   mtc = MultiThreadConvert(img1.data, img1.size, img1.w, img1.h, img1.channels,
                            0, center, cr, cc, ker_h, ker_w, kernel);
   mtc.mt_convolution(0, 3, 3, kernel, 1, 1);
-  img1.write("output.png");
   auto end = std::chrono::steady_clock::now();
 
   auto elapsed_ms =

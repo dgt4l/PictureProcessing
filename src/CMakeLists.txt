@@ -4,7 +4,7 @@ project(mtci)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-lpthread")
+set(CMAKE_CXX_FLAGS "-lpthread -g")
 
 # include(FetchContent)
 # FetchContent_Declare(

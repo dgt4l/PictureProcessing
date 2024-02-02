@@ -100,32 +100,37 @@ void *thread_convertion_task(void *ptr) {
   uint64_t k = d->k;
   double c = 0;
   for (int step = k; step < mtc.size; step += (mtc.threads * mtc.channels)) {
+    // fprintf(f, "[%d]", step);
     for (long i = -((long)mtc.cr); i < (long)mtc.ker_h - mtc.cr; ++i) {
-      long row = ((long)k / mtc.channels) / mtc.w - i;
+      long row = ((long)step / mtc.channels) / mtc.w - i;
       if (row < 0) {
         row = 0;
       } else if (row > mtc.h - 1) {
         row = mtc.h - 1;
       }
       for (long j = -((long)mtc.cc); j < (long)mtc.ker_w - mtc.cc; ++j) {
-        long col = ((long)d->k / mtc.channels) % mtc.w - j;
+        long col = ((long)step / mtc.channels) % mtc.w - j;
         if (col < 0) {
-          col = col % mtc.w + mtc.w;
+          col = 0;
         } else if (col > mtc.w - 1) {
-          col %= mtc.w;
+          col = mtc.w - 1;
         }
         c += mtc.ker[mtc.center + i * (long)mtc.ker_w + j] *
              mtc.data[(row * mtc.w + col) * mtc.channels + mtc.channel];
+        // fprintf(f, "[%d]\n", c);
       }
     }
+    pthread_mutex_lock(&file_mutex);
     mtc.new_data[step] = (uint8_t)BYTE_BOUND(round(c));
+    // fprintf(f, "[%d] = %d\n", step, mtc.new_data[step]);
+    pthread_mutex_unlock(&file_mutex);
   }
 }
 
 int main() {
-  char path[] = "../materials/road.jpg";
-  Image img1(path), img2(path);
-
+  char path[] = "../materials/kisa.png";
+  Image img1(path), img2(path), img3(path);
+  
   auto begin_mp = std::chrono::steady_clock::now();
 
   // apply_clarity_filter(img1, 1).write("../materials/clarity.png");
@@ -148,26 +153,34 @@ int main() {
   uint32_t cc = 1;
   uint64_t center = cr * ker_w + cc;
   uint8_t channel = 0;
-  uint16_t threads = 100;
+  uint16_t threads = 1;
   mtc = MultiThreadConvert(img1.data, img1.size, img1.w, img1.h, img1.channels,
                            0, center, cr, cc, ker_h, ker_w, kernel, threads);
   mtc.mt_convolution(channel, 3, 3, kernel, 1, 1);
-  for (uint64_t k = channel; k < img1.size; k += img1.channels) {
-    img1.data[k] = mtc.new_data[k / img1.channels];
-  }
-
-  img1.write("../materials/output_mp.png");
+  
 
   auto end_mp = std::chrono::steady_clock::now();
   auto elapsed_ms_mp =
       std::chrono::duration_cast<std::chrono::milliseconds>(end_mp - begin_mp);
   auto begin = std::chrono::steady_clock::now();
   img2.convolve_clamp_to_border(0, 3, 3, kernel, 1, 1);
+  for (int i = 0; i < img1.size; i += img1.size) {
+    img1.data[i] = mtc.new_data[i]; 
+    fprintf(f, "%d: %d (%d)", i, mtc.new_data[i], img2.data[i]);
+  }
   img2.write("../materials/output_default.png");
+  img1.write("../materials/output_mp.png");
   auto end = std::chrono::steady_clock::now();
   auto elapsed_ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
   std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+  // for (int i = 0; i < img1.size; i += img1.channels) {
+  //   if (img1.data[i] != img2.data[i]) {
+  //     fprintf(f, "[%d] from %d: %d != %d\n", img3.data[i], i, img1.data[i], img2.data[i]);
+  //   } else {
+  //     fprintf(f, "[%d] from %d: %d == %d\n", img3.data[i], i, img1.data[i], img2.data[i]);
+  //   }
+  // }
   std::cout << "The mp time: " << elapsed_ms_mp.count() << " ms\n";
   std::cout << "The default time: " << elapsed_ms.count() << " ms\n";
 }

@@ -133,9 +133,11 @@ Image& Image::convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
         }
         c += ker[center + i * (long)ker_w + j] *
              data[(row * w + col) * channels + channel];
+        // printf("[%d]\n", c);
       }
     }
     new_data[k / channels] = (uint8_t)BYTE_BOUND(round(c));
+    // printf("[%d] = %d\n", k / channels, new_data[k / channels]);
   }
   for (uint64_t k = channel; k < size; k += channels) {
     data[k] = new_data[k / channels];

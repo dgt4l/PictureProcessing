@@ -85,9 +85,12 @@ MultiThreadConvert &MultiThreadConvert::mt_convolution(
     uint32_t cc) {
   uint64_t center = cr * ker_w + cc;
   pthread_t pool[mtc.threads];
+  data_t *datas = new data_t[(int) mtc.threads];
+  for (unsigned i = 0; i < mtc.threads; ++i) {
+    datas[i] = {i * mtc.channels};
+  }
   for (int i = 0; i < mtc.threads; ++i) {
-    data_t data = {i * mtc.channels};
-    pthread_create(&pool[i], NULL, thread_convertion_task, &data);
+    pthread_create(&pool[i], NULL, thread_convertion_task, &datas[i]);
   }
   for (int i = 0; i < mtc.threads; ++i) {
     pthread_join(pool[i], NULL);
@@ -98,9 +101,8 @@ MultiThreadConvert &MultiThreadConvert::mt_convolution(
 void *thread_convertion_task(void *ptr) {
   data_t *d = (data_t *)ptr;
   uint64_t k = d->k;
-  double c = 0;
   for (int step = k; step < mtc.size; step += (mtc.threads * mtc.channels)) {
-    // fprintf(f, "[%d]", step);
+    double c = 0;
     for (long i = -((long)mtc.cr); i < (long)mtc.ker_h - mtc.cr; ++i) {
       long row = ((long)step / mtc.channels) / mtc.w - i;
       if (row < 0) {
@@ -117,34 +119,17 @@ void *thread_convertion_task(void *ptr) {
         }
         c += mtc.ker[mtc.center + i * (long)mtc.ker_w + j] *
              mtc.data[(row * mtc.w + col) * mtc.channels + mtc.channel];
-        // fprintf(f, "[%d]\n", c);
       }
     }
-    pthread_mutex_lock(&file_mutex);
     mtc.new_data[step] = (uint8_t)BYTE_BOUND(round(c));
-    // fprintf(f, "[%d] = %d\n", step, mtc.new_data[step]);
-    pthread_mutex_unlock(&file_mutex);
   }
 }
 
 int main() {
-  char path[] = "../materials/kisa.png";
+  char path[] = "../materials/road.jpg";
   Image img1(path), img2(path), img3(path);
   
   auto begin_mp = std::chrono::steady_clock::now();
-
-  // apply_clarity_filter(img1, 1).write("../materials/clarity.png");
-
-  // apply_blur_filter(img2, 1).write("../materials/blur.png");
-
-  // apply_embossing_filter(img3, 1).write("../materials/embossing.png");
-
-  // apply_borders_filter(img4, 1).write("../materials/borders.png");
-
-  // apply_upscaling_filter(img5, 1).write("../materials/upscaling.png");
-
-  // apply_negative_filter(img1, 1).write("../materials/output.png");
-  // for (int i = 0; i < 1000; ++i) printf("%d\n", img1.data[i]);
   double kernel[] = {0 / 1.0, 0 / 1.0, 0 / 1.0, 0 / 1.0, -1 / 1.0,
                      0 / 1.0, 0 / 1.0, 0 / 1.0, 0 / 1.0};
   uint32_t ker_w = 3;
@@ -153,34 +138,24 @@ int main() {
   uint32_t cc = 1;
   uint64_t center = cr * ker_w + cc;
   uint8_t channel = 0;
-  uint16_t threads = 1;
+  uint16_t threads = 16;
   mtc = MultiThreadConvert(img1.data, img1.size, img1.w, img1.h, img1.channels,
                            0, center, cr, cc, ker_h, ker_w, kernel, threads);
   mtc.mt_convolution(channel, 3, 3, kernel, 1, 1);
-  
-
+  for (int i = 0; i < img1.size; i += mtc.channels) {
+    img1.data[i] = mtc.new_data[i];
+  }
+  img1.write("../materials/output_mp.png");
   auto end_mp = std::chrono::steady_clock::now();
   auto elapsed_ms_mp =
       std::chrono::duration_cast<std::chrono::milliseconds>(end_mp - begin_mp);
   auto begin = std::chrono::steady_clock::now();
   img2.convolve_clamp_to_border(0, 3, 3, kernel, 1, 1);
-  for (int i = 0; i < img1.size; i += img1.size) {
-    img1.data[i] = mtc.new_data[i]; 
-    fprintf(f, "%d: %d (%d)", i, mtc.new_data[i], img2.data[i]);
-  }
   img2.write("../materials/output_default.png");
-  img1.write("../materials/output_mp.png");
   auto end = std::chrono::steady_clock::now();
   auto elapsed_ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
   std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-  // for (int i = 0; i < img1.size; i += img1.channels) {
-  //   if (img1.data[i] != img2.data[i]) {
-  //     fprintf(f, "[%d] from %d: %d != %d\n", img3.data[i], i, img1.data[i], img2.data[i]);
-  //   } else {
-  //     fprintf(f, "[%d] from %d: %d == %d\n", img3.data[i], i, img1.data[i], img2.data[i]);
-  //   }
-  // }
   std::cout << "The mp time: " << elapsed_ms_mp.count() << " ms\n";
   std::cout << "The default time: " << elapsed_ms.count() << " ms\n";
 }

@@ -13,7 +13,7 @@ MultiThreadConvert &MultiThreadConvert::mt_convolution(
   pthread_t pool[mtc.threads];
   data_t *datas = new data_t[(int) mtc.threads];
   for (unsigned i = 0; i < mtc.threads; ++i) {
-    datas[i] = {i * mtc.channels};
+    datas[i] = {i * mtc.channels + channel};
   }
   for (int i = 0; i < mtc.threads; ++i) {
     pthread_create(&pool[i], NULL, thread_convertion_task, &datas[i]);
@@ -51,14 +51,14 @@ void *thread_convertion_task(void *ptr) {
   }
 }
 
-void mt_convolve_clamp_to_border(uint8_t channel, uint32_t ker_w,
+void mt_convolve_clamp_to_border(const Image &img1, uint8_t channel, uint32_t ker_w,
                                        uint32_t ker_h, double ker[],
                                        uint32_t cr, uint32_t cc, uint8_t threads) {
   uint64_t center = cr * ker_w + cc;
   mtc = MultiThreadConvert(img1.data, img1.size, img1.w, img1.h, img1.channels,
-                           0, center, cr, cc, ker_h, ker_w, ker, threads);
+                           channel, center, cr, cc, ker_h, ker_w, ker, threads);
   mtc.mt_convolution(channel, 3, 3, ker, 1, 1);
-  for (int i = 0; i < img1.size; i += mtc.channels) {
+  for (int i = channel; i < img1.size; i += mtc.channels) {
     img1.data[i] = mtc.new_data[i];
   }
 }

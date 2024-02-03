@@ -1,5 +1,5 @@
 #ifndef SRC_UTIL_MTCI_THREADS_H
-#define SRC_UTIL_MTCI_TRANSFORM_H
+#define SRC_UTIL_MTCI_THREADS_H
 
 #include <pthread.h>
 #include <stdint.h>
@@ -9,9 +9,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <chrono>
 #include <iostream>
 #include <vector>
-#include "mtci_image.h"
+#include "../lib/mtci_image.h"
 
 class MultiThreadConvert {
  public:
@@ -66,5 +67,9 @@ struct data_t {
 
 void *thread_convertion_task(void *ptr);
 
-#endif  // !SRC_UTIL_MTCI_TRANSFORM_H
+void mt_convolve_clamp_to_border(const Image &img1, uint8_t channel, uint32_t ker_w,
+                                       uint32_t ker_h, double ker[],
+                                       uint32_t cr, uint32_t cc, uint8_t threads);
+
+#endif  // !SRC_UTIL_MTCI_THREADS_H
 

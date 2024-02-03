@@ -24,6 +24,7 @@ struct Image {
   int h;
   int channels;
 
+  Image();
   Image(const char* filename, int channel_force = 0);
   Image(int w, int h, int channels = 3);
   Image(const Image& img);

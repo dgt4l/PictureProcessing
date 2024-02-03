@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "-lpthread -g -O0")
 enable_testing()
 
 
-add_library(mtci_lib.a lib/mtci_image.cc util/mtci_transform.cc)
+add_library(mtci_lib.a lib/mtci_image.cc util/mtci_transform.cc util/mtci_threads.cc)
 set_target_properties(mtci_lib.a PROPERTIES PREFIX "" SUFFIX "")
 
 # target_link_libraries(

@@ -12,6 +12,8 @@
 #include "../include/stb_image.h"
 #include "../include/stb_image_write.h"
 
+
+Image::Image(): data(NULL), size(0) {}
 Image::Image(const char* filename, int channel_force) {
   if (read(filename, channel_force)) {
     printf("Read %s\n", filename);

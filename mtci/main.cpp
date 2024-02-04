@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-#include "util/mtci_transform.h"
+#include "../mtci/util/mtci_transform.h"
 
 void print_help(char *exe_name) {
   printf(

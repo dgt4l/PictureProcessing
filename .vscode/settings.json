@@ -47,8 +47,10 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "iostream": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "ctime": "cpp"
     },
     "cmake.configureOnOpen": true,
-    "cmake.sourceDirectory": "/home/okanocan/work_dir/PictureProcessing/src"
+    "cmake.sourceDirectory": "/home/baumff/PictureProcessing/src"
 }

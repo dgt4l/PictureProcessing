@@ -9,13 +9,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-pedantic)
+add_compile_options(-g)
 
 find_package(Threads REQUIRED)
 
 include_directories(..)
 
 set(CLIENT_SOURCES
-    client.cpp
+    worker.cpp
 )
 
 add_executable(client ${CLIENT_SOURCES})

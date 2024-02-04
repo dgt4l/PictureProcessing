@@ -1,17 +1,19 @@
 #include "zmq/helpers.h"
-#include <unistd.h>
 
-void imalive(int id) { printf("%s %d\n", "[Success]", getpid()); }
+void imalive(int id) { printf("[%d] %d\n", id, getpid()); }
 
 int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    return 1;
+  }
   int id = atoi(argv[1]);
+  imalive(id);
   void *context = zmq_ctx_new();
   void *puller = init_socket(context, id, ZMQ_PULL);
   void *root_pusher = init_socket(context, ROOT_ID, ZMQ_PUSH);
   void *sibling_pusher = NULL;
   void *son_pusher = NULL;
 
-  imalive(id);
   char buffer[1000];
   char subcommand[1000], cmd[1000];
   int size = 0, param_id, param_parent_id, param_sibling_id, param_son_id,

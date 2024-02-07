@@ -23,8 +23,8 @@ find_library(
 
 
 set(HELPERS_SOURCES
-    helpers.h
-    helpers.cc
+    command_dispatcher.h
+    command_dispatcher.cc
 )
 
 add_library(helper ${HELPERS_SOURCES})

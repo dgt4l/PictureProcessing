@@ -16,7 +16,7 @@ find_package(Threads REQUIRED)
 include_directories(..)
 
 set(CLIENT_SOURCES
-    worker.cpp
+    worker.cc
 )
 
 add_executable(client ${CLIENT_SOURCES})

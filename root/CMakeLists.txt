@@ -18,7 +18,7 @@ include_directories(..)
 
 
 set(SERVER_SOURCES
-    server.cpp
+    server.cc
 )
 
 add_executable(server ${SERVER_SOURCES})

@@ -10,6 +10,8 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-pedantic)
 
+include_directories(lib)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(zmq)

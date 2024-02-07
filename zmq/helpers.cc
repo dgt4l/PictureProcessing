@@ -35,15 +35,15 @@ int send_message(void *pusher, char *buffer, size_t size) {
 
 
 int solve_server_cmd(std::string const& inString) {
-  if (inString == '') return EXIT;
-  if (!strcmp("create", inString)) return CREATE;
-  if (!strcmp("terminate", cmd)) return TERMINATE;
-  if (!strcmp("task", cmd)) return TASK;
-  if (!strcmp("desolate", cmd)) return DESOLATE;
-  if (!strcmp("delegate", cmd)) return DELEGATE;
-  if (!strcmp("available", cmd)) return AVAILABLE;
-  if (!strcmp("status", cmd)) return STATUS;
-  if (!strcmp("free", cmd)) return FREE;
+  if (!inString.compare("")) return EXIT;
+  if (!inString.compare("create")) return CREATE;
+  if (!inString.compare("terminate")) return TERMINATE;
+  if (!inString.compare("task")) return TASK;
+  if (!inString.compare("desolate")) return DESOLATE;
+  if (!inString.compare("delegate")) return DELEGATE;
+  if (!inString.compare("available")) return AVAILABLE;
+  if (!inString.compare("status")) return STATUS;
+  if (!inString.compare("free")) return FREE;
   return UNKNOWN;
 }
 

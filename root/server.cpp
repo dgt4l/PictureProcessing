@@ -20,7 +20,7 @@ int main() {
   int server_status = ONLINE, param_id;
   while (server_status) {
     std::getline(std::cin, cmd);
-    switch (solve_server_cmd(&cmd)) {
+    switch (solve_server_cmd(cmd)) {
       case EXIT: {
         // * we need to terminate workers too
         server_status = CLOSED;

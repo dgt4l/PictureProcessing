@@ -15,19 +15,12 @@ int main(int argc, char *argv[]) {
   }
   std::string id = argv[1];
   std::string pid = std::to_string(getpid());
-  zmq::message_t msg;
-  // Worker w(Worker::Status::IDLE, id);
+
+  Worker w(Worker::Status::IDLE, stoi(id));
   puller.connect(SERVER_PUSHER_SOCKET_PATTERN);
   pusher.connect(SERVER_PULLER_SOCKET_PATTERN);
-  std::string cmd = "IAMALIVE " + id + " " + pid;
-  pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
-
-  while (1) {
-    puller.recv(&msg);
-    std::string rpl = std::string(static_cast<char*>(msg.data()), msg.size());
-
-    std::cout << "[" << id << "] " << rpl << std::endl;
-  }
+  // std::string cmd = "IAMALIVE " + id + " " + pid;
+  // pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
   return 0;
 }
 //   int id = atoi(argv[1]);

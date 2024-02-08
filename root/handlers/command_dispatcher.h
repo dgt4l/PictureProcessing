@@ -9,7 +9,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <list>
+#include <utility>
 #include "worker_map.h"
+#include "../utils/auto_handler.h"
 
 extern zmq::socket_t pusher;
 
@@ -18,8 +21,14 @@ class CommandDispatcher {
     CommandDispatcher() {}
     CommandDispatcher( const CommandDispatcher&);
     CommandDispatcher& operator=(CommandDispatcher&);
-    enum CMD_CODES { EXIT = -1, UNKNOWN, EXEC, CREATE };
+    enum CMD_CODES { UNKNOWN, EXIT, EXEC, CREATE };
     enum CMD_CODES solve_command(const std::string cmd);
+    const std::list<std::pair<enum CMD_CODES, std::string>> hasher =
+       {
+        std::make_pair(EXIT, "EXIT"),
+        std::make_pair(EXEC, "EXEC"),
+        std::make_pair(CREATE, "CREATE")
+       };
   public:
     static CommandDispatcher& getInstance() {
       static CommandDispatcher instance;

@@ -49,20 +49,10 @@ bool isInt(const std::string& str) {
     return true;
 }
 
-std::vector<std::string> tokenized(std::string line) {
-    std::stringstream ssl(line);
-    std::string token;
-    std::vector<std::string> args;
-    while (getline(ssl, token, ' ')) {
-        args.push_back(token);
-    }
-    return args;
-}
-
 int CommandDispatcher::dispatch_command() {
   std::string cmd;
   std::getline(std::cin, cmd);
-  std::vector<std::string> args = tokenized(cmd);
+  std::vector<std::string> args = auto_tokenize(cmd);
   std::cout << MESSAGE_PREFIX << "Recieved command: " << args.at(0) << std::endl;
   switch (solve_command(cmd)) {
     case CommandDispatcher::CMD_CODES::EXEC: {

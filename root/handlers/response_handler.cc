@@ -17,20 +17,10 @@ enum ResponseHandler::RESPONSE_CODES ResponseHandler::solve_response(const std::
   return ResponseHandler::RESPONSE_CODES::UNKNOWN;
 }
 
-std::vector<std::string> tokenize(std::string line) {
-    std::stringstream ssl(line);
-    std::string token;
-    std::vector<std::string> args;
-    while (getline(ssl, token, ' ')) {
-        args.push_back(token);
-    }
-    return args;
-}
-
 int ResponseHandler::read_response() {
     std::string response = s_recv(puller, ZMQ_DONTWAIT);
     if (response.length() > 0) {
-        std::vector<std::string> args = tokenize(response);
+        std::vector<std::string> args = auto_tokenize(response);
         std::cout << MESSAGE_PREFIX << "Recieved response: " << args.at(0) << std::endl;
         switch (solve_response(response)) {
             case ResponseHandler::RESPONSE_CODES::UNKNOWN: {

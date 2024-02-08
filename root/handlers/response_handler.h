@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 #include "worker_map.h"
-
+#include "../utils/auto_handler.h"
 
 extern zmq::socket_t puller;
 

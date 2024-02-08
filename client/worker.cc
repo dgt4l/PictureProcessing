@@ -1,8 +1,12 @@
 // #include "../zmq/command_dispatcher.h"
+#include "worker.h"
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+zmq::context_t ctx;
+zmq::socket_t pusher(ctx, zmq::socket_type::push);
+zmq::socket_t puller(ctx, zmq::socket_type::pull);
+
+const std::string SERVER_PUSHER_SOCKET_PATTERN = "tcp://127.0.0.1:5555";
+const std::string SERVER_PULLER_SOCKET_PATTERN = "tcp://127.0.0.1:5556";
 
 
 void imalive(int id) { printf("[%d] %d\n", id, getpid()); }
@@ -14,6 +18,16 @@ int main(int argc, char *argv[]) {
   }
   int id = atoi(argv[1]);
   imalive(id);
+  zmq::message_t msg;
+  Worker w(Worker::Status::IDLE, id);
+  puller.connect(SERVER_PUSHER_SOCKET_PATTERN);
+
+  while (1) {
+    puller.recv(&msg);
+    std::string rpl = std::string(static_cast<char*>(msg.data()), msg.size());
+
+    std::cout << "[" << id << "] " << rpl << std::endl;
+  }
   return 0;
 }
 //   int id = atoi(argv[1]);

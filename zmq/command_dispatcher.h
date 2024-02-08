@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <zmq.hpp>
+#include "../lib/cppzmq/zmq_helpers.hpp"
 #include <sys/types.h>
 #include <vector>
 #include <string>

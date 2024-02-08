@@ -70,7 +70,6 @@ int CommandDispatcher::dispatch_command() {
     case CommandDispatcher::CMD_CODES::CREATE: {
       std::string str = getSecondWord(cmd);
       if (isInt(str)) {
-        // ! worker create
         init_worker_subprocess(str);
       }
       else{

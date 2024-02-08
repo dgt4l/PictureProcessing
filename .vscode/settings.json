@@ -53,8 +53,12 @@
         "cinttypes": "cpp",
         "cstring": "cpp",
         "optional": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "map": "cpp"
     },
     "cmake.configureOnOpen": true,
-    "cmake.sourceDirectory": "/home/baumff/PictureProcessing/src"
+    "cmake.sourceDirectory": "${workspaceFolder}/home/cojod/.cache/yay/libtd/src/libtd/tdactor"
 }

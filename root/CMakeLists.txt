@@ -16,10 +16,13 @@ include_directories(..)
 
 # add_subdirectory(../zmq ${CMAKE_CURRENT_BINARY_DIR}/zmq)
 
+include_directories(handlers)
 
 set(SERVER_SOURCES
     server.cc
 )
+
+add_subdirectory(handlers)
 
 add_executable(server ${SERVER_SOURCES})
 

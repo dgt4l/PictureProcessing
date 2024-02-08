@@ -8,19 +8,19 @@ zmq::socket_t puller(ctx, zmq::socket_type::pull);
 const std::string SERVER_PUSHER_SOCKET_PATTERN = "tcp://127.0.0.1:5555";
 const std::string SERVER_PULLER_SOCKET_PATTERN = "tcp://127.0.0.1:5556";
 
-
-void imalive(int id) { printf("[%d] %d\n", id, getpid()); }
-
 int main(int argc, char *argv[]) {
   if (argc != 2) {
     printf("got %d args, exiting\n", argc);
     return 1;
   }
-  int id = atoi(argv[1]);
-  imalive(id);
+  std::string id = argv[1];
+  std::string pid = std::to_string(getpid());
   zmq::message_t msg;
-  Worker w(Worker::Status::IDLE, id);
+  // Worker w(Worker::Status::IDLE, id);
   puller.connect(SERVER_PUSHER_SOCKET_PATTERN);
+  pusher.connect(SERVER_PULLER_SOCKET_PATTERN);
+  std::string cmd = "IAMALIVE " + id + " " + pid;
+  pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
 
   while (1) {
     puller.recv(&msg);

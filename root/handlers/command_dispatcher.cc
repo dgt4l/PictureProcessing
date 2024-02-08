@@ -1,8 +1,6 @@
 #include "command_dispatcher.h"
 
-extern zmq::context_t ctx;
-extern zmq::socket_t pusher;
-
+const std::string MESSAGE_PREFIX = "[CommandDispatcher] ";
 
 enum CommandDispatcher::CMD_CODES CommandDispatcher::solve_command(const std::string cmd) {
   std::string head = cmd.substr(0, cmd.find(" "));
@@ -51,15 +49,23 @@ bool isInt(const std::string& str) {
     return true;
 }
 
-
+std::vector<std::string> tokenized(std::string line) {
+    std::stringstream ssl(line);
+    std::string token;
+    std::vector<std::string> args;
+    while (getline(ssl, token, ' ')) {
+        args.push_back(token);
+    }
+    return args;
+}
 
 int CommandDispatcher::dispatch_command() {
   std::string cmd;
   std::getline(std::cin, cmd);
-  std::cout << "Recieved command: " << cmd << std::endl;
+  std::vector<std::string> args = tokenized(cmd);
+  std::cout << MESSAGE_PREFIX << "Recieved command: " << args.at(0) << std::endl;
   switch (solve_command(cmd)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
-      // ! id checking logic
       std::cout << "sending to pusher" << std::endl;
       pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
       break;
@@ -68,17 +74,19 @@ int CommandDispatcher::dispatch_command() {
       return 0;
     }
     case CommandDispatcher::CMD_CODES::CREATE: {
-      std::string str = getSecondWord(cmd);
-      if (isInt(str)) {
-        init_worker_subprocess(str);
+      if (!isInt(args.at(1))) {
+        std::cout << MESSAGE_PREFIX << "DOLBAEB CHISLO VVODI NAHUI" << std::endl;
+        break;
       }
-      else{
-        std::cout << "DOLBAEB CHISLO VVODI NAHUI" << std::endl;
+      if (is_reserved(stoi(args.at(1)))) {
+        std::cout << MESSAGE_PREFIX << "worker with id " << args.at(1) << " already exists" << std::endl;
+        break;
       }
+      init_worker_subprocess(args.at(1));
       break;
     }
     case CommandDispatcher::CMD_CODES::UNKNOWN: {
-      std::cout << "ahahhahahahahahha vot eblan" << std::endl;
+      std::cout << MESSAGE_PREFIX << "ahahhahahahahahha vot eblan" << std::endl;
       break;
     }
     default: {
@@ -94,7 +102,6 @@ void init_worker_subprocess(std::string id) {
   if (child_pid == 0) {
     char path[256];
     char *args[] = {"client", id.data(), NULL};
-    std::cout << "Ready to create subprocess with provided id: {" << id.data() << "}" << std::endl;
     realpath("client/client", path);
     printf(path);
     if (execvp(path, args) == -1) {

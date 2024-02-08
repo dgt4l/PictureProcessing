@@ -15,7 +15,7 @@ include_directories(lib)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_subdirectory(zmq)
+add_subdirectory(utils)
 add_subdirectory(mtci)
 add_subdirectory(root)
 add_subdirectory(client)

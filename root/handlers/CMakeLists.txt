@@ -25,6 +25,10 @@ find_library(
 set(HELPERS_SOURCES
     command_dispatcher.h
     command_dispatcher.cc
+    response_handler.h
+    response_handler.cc
+    worker_map.cc 
+    worker_map.h
 )
 
 add_library(helper ${HELPERS_SOURCES})

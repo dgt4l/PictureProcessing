@@ -1,10 +1,11 @@
 #include "worker_map.h"
 
-void append_worker(int id, int pid){
+const std::string MESSAGE_PREFIX = "[WorkerMap]";
+
+void append_worker(int id, int pid) {
+    std::cout << MESSAGE_PREFIX << " New worker added: [" << id << ":" << pid << "]" << std::endl; 
     worker_map.insert({id, pid});
 }
-    
-
 
 int count_workers() {
     return worker_map.size();
@@ -22,6 +23,7 @@ bool is_reserved(int id){
     return true;
 } 
 
-void remove_worker(int id){
+void remove_worker(int id) {
+    std::cout << MESSAGE_PREFIX << " Worker with id: [" << id << "]" <<" has been removed" << std::endl;
     worker_map.erase(id);
 }

@@ -12,5 +12,4 @@ bool is_reserved(int id);
 int get_pid(int id);
 void remove_worker(int id);
 
-
 #endif // !ROOT_HANDLERS_WORKER_MAP_H

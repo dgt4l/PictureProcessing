@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <thread>
 
 #include "../lib/cppzmq/zmq_helpers.hpp"
+#include "handlers/response_dispatcher.h"
 
 
 struct Task {

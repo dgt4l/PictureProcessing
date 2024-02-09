@@ -10,7 +10,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "worker_map.h"
 #include "../utils/auto_handler.h"
 
 
@@ -22,7 +21,17 @@ class RequestHandler {
     RequestHandler() {}
     RequestHandler( const RequestHandler&);
     RequestHandler& operator=(RequestHandler&);
-    enum REQUEST_CODES solve_request(const std::string request);
+    const std::list<std::pair<enum REQUEST_CODES, std::string>> hasher = 
+       {
+        std::make_pair(UNKNOWN, std::string("UNKNOWN")),
+        std::make_pair(CREATE, std::string("CREATE")),
+        std::make_pair(TERMINATE, std::string("TERMINATE")),
+        std::make_pair(TASK, std::string("TASK")),
+        std::make_pair(DELEGATE, std::string("DELEGATE")),
+        std::make_pair(STATUS, std::string("STATUS")),
+        std::make_pair(FREE, std::string("FREE")),
+        std::make_pair(DESOLATE, std::string("DESOLATE"))
+       };
     
   public:
     static RequestHandler& getInstance() {

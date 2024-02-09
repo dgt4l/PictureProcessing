@@ -2,16 +2,6 @@
 
 const std::string MESSAGE_PREFIX = "[CommandDispatcher] ";
 
-enum CommandDispatcher::CMD_CODES CommandDispatcher::solve_command(const std::string cmd) {
-  std::string head = cmd.substr(0, cmd.find(" "));
-  std::cout << "[" << head << "]" << std::endl;
-  if (!head.compare("EXEC")) return CommandDispatcher::CMD_CODES::EXEC;
-  if (!head.compare("EXIT")) return CommandDispatcher::CMD_CODES::EXIT;
-  if (!head.compare("CREATE")) return CommandDispatcher::CMD_CODES::CREATE;
-  return CommandDispatcher::CMD_CODES::UNKNOWN;
-}
-
-
 std::string getSecondWord(const std::string& str) {
     std::string secondWord = "";
     int wordCount = 0;
@@ -54,7 +44,7 @@ int CommandDispatcher::dispatch_command() {
   std::getline(std::cin, cmd);
   std::vector<std::string> args = auto_tokenize(cmd);
   std::cout << MESSAGE_PREFIX << "Recieved command: " << args.at(0) << std::endl;
-  switch (solve_command(cmd)) {
+  switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
       std::cout << "sending to pusher" << std::endl;
       pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
@@ -80,7 +70,7 @@ int CommandDispatcher::dispatch_command() {
       break;
     }
     default: {
-      // ! che nahui
+      std::cout << "xd" << std::endl;
       break;
     }
   }

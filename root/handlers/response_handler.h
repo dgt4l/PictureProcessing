@@ -20,7 +20,18 @@ class ResponseHandler {
     ResponseHandler() {}
     ResponseHandler( const ResponseHandler&);
     ResponseHandler& operator=(ResponseHandler&);
-    enum RESPONSE_CODES solve_response(const std::string response);
+    const std::list<std::pair<enum RESPONSE_CODES, std::string>> hasher = 
+       {
+        std::make_pair(UNKNOWN, std::string("UNKNOWN")),
+        std::make_pair(IAMALIVE, std::string("IAMALIVE")),
+        std::make_pair(DEAD, std::string("DEAD")),
+        std::make_pair(COMPLETE, std::string("COMPLETE")),
+        std::make_pair(BUSY, std::string("BUSY")),
+        std::make_pair(TOOSWEET, std::string("TOOSWEET")),
+        std::make_pair(SHORTAGE, std::string("SHORTAGE")),
+        std::make_pair(TRANSFER, std::string("TRANSFER")),
+        std::make_pair(STATUS, std::string("STATUS"))
+       };
   public:
     static ResponseHandler& getInstance() {
       static ResponseHandler instance;

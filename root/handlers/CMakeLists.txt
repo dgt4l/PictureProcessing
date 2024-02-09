@@ -34,6 +34,6 @@ set(HELPERS_SOURCES
 add_library(helper ${HELPERS_SOURCES})
 
 target_link_libraries(helper PRIVATE ${ZeroMQ_LIBRARY})
-target_link_libraries(helper PRIVATE utils2)
+target_link_libraries(helper PRIVATE utils)
 
 target_include_directories(helper PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

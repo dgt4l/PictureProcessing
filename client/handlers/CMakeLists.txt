@@ -10,14 +10,10 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-pedantic)
 
-include_directories(../lib)
-
 find_package(Threads REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(PC_ZeroMQ QUIET zmq)
-
-include_directories(..)
 
 find_library(
     ZeroMQ_LIBRARY
@@ -25,11 +21,17 @@ find_library(
     PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
 )
 
-set(UTILS_SOURCES
-    auto_handler.cc
-    auto_handler.h
+
+set(HELPERS_SOURCES
+    request_handler.cc
+    request_handler.h 
+    response_dispatcher.cc
+    response_dispatcher.h
 )
 
-add_library(utils ${UTILS_SOURCES})
+add_library(helper2 ${HELPERS_SOURCES})
 
-target_link_libraries(utils PRIVATE ${ZeroMQ_LIBRARY})
+target_link_libraries(helper2 PRIVATE ${ZeroMQ_LIBRARY})
+target_link_libraries(helper2 PRIVATE utils)
+
+target_include_directories(helper2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

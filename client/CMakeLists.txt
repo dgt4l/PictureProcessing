@@ -15,10 +15,14 @@ find_package(Threads REQUIRED)
 
 include_directories(..)
 
+include_directories(handlers)
+
 set(CLIENT_SOURCES
     worker.cc
 )
 
+add_subdirectory(handlers)
+
 add_executable(client ${CLIENT_SOURCES})
 
-target_link_libraries(client PRIVATE helper)
+target_link_libraries(client PRIVATE helper2)

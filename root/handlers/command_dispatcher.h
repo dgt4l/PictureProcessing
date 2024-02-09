@@ -22,12 +22,12 @@ class CommandDispatcher {
     CommandDispatcher( const CommandDispatcher&);
     CommandDispatcher& operator=(CommandDispatcher&);
     enum CMD_CODES { UNKNOWN, EXIT, EXEC, CREATE };
-    enum CMD_CODES solve_command(const std::string cmd);
-    const std::list<std::pair<enum CMD_CODES, std::string>> hasher =
+    const std::list<std::pair<enum CMD_CODES, std::string>> hasher = 
        {
-        std::make_pair(EXIT, "EXIT"),
-        std::make_pair(EXEC, "EXEC"),
-        std::make_pair(CREATE, "CREATE")
+        std::make_pair(UNKNOWN, std::string("UNKNOWN")),
+        std::make_pair(EXIT, std::string("EXIT")),
+        std::make_pair(EXEC, std::string("EXEC")),
+        std::make_pair(CREATE, std::string("CREATE"))
        };
   public:
     static CommandDispatcher& getInstance() {
@@ -38,6 +38,5 @@ class CommandDispatcher {
 };
 
 void init_worker_subprocess(std::string id);
-
 
 #endif  // UTIL_ZMQ_HELPERS

@@ -9,5 +9,6 @@ int ResponseDispatcher::dispatch_response() {
     std::vector<std::string> args = auto_tokenize(cmd);
     std::cout << MESSAGE_PREFIX << "Worker dispatching response: " << cmd << std::endl;
     pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
+    resps.str("");
   }
 }

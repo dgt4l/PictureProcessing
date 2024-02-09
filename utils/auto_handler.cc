@@ -10,3 +10,7 @@ std::vector<std::string> auto_tokenize(std::string line) {
     }
     return args;
 }
+
+bool is_request_belongs(std::vector<std::string> args, int worker_id) {
+    return args.size() <= 2 || stoi(args.at(2)) == worker_id;
+}

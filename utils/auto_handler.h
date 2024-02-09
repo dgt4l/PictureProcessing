@@ -20,5 +20,7 @@ T auto_hash_item(const std::string item, const std::list<std::pair<T, std::strin
     return hasher.front().first;
 }
 
+bool is_request_belongs(std::vector<std::string> args, int worker_id);
+
 #endif // !UTILS_AUTO_HANDLER_H
 

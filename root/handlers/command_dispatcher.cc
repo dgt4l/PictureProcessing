@@ -46,7 +46,6 @@ int CommandDispatcher::dispatch_command() {
   std::cout << MESSAGE_PREFIX << "Recieved command: " << args.at(0) << std::endl;
   switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
-      std::cout << "sending to pusher" << std::endl;
       pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
       break;
     }

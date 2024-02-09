@@ -11,9 +11,30 @@
 #include <string>
 #include <iostream>
 #include "../utils/auto_handler.h"
+#include "response_dispatcher.h"
+#include <utility>
 
+const std::string GLOBAL_ID = "-1";
+
+struct Task {
+    enum class Filter { NONE, BLUR, CLARITY, EMBOSSING, BORDERS, UPSCALING, NEGATIVE };
+    std::string input_path;
+    Filter filter;
+};
+
+class Worker {
+    public:
+      int id;
+      enum class Status { IDLE, READY, WORKING, PAUSED, COMPLETE };
+      Task task;
+      int limit;
+      Status s;
+      Worker() {}
+      Worker(enum class Status s_, int id_) : s(s_), id(id_), limit(-1) {}
+};
 
 extern zmq::socket_t puller;
+extern Worker worker;
 
 class RequestHandler {
   private:

@@ -30,7 +30,6 @@ set(UTILS_SOURCES
     auto_handler.h
 )
 
-add_library(utils ${UTILS_SOURCES})
+add_library(utils2 ${UTILS_SOURCES})
 
-target_link_libraries(utils PRIVATE ${ZeroMQ_LIBRARY})
-target_include_directories(utils PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(utils2 PRIVATE ${ZeroMQ_LIBRARY})

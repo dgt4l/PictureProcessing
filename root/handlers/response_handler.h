@@ -11,6 +11,8 @@
 #include <iostream>
 #include "worker_map.h"
 #include "../utils/auto_handler.h"
+#include "../utils/miscellaneous.h"
+#include <utility>
 
 extern zmq::socket_t puller;
 

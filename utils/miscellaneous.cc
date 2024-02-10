@@ -1,5 +1,17 @@
-#include "auto_handler.h"
+#include "miscellaneous.h"
 
+int init_subprocess(std::string params, std::string xname, std::string xpath) {
+  int child_pid = fork();
+  if (child_pid == 0) {
+    char path[256];
+    char *args[] = {xname.data(), params.data(), NULL};
+    realpath(xpath.data(), path);
+    if (execvp(path, args) == -1) {
+      perror("Execv err");
+    }
+  }
+  return child_pid;
+}
 
 std::vector<std::string> auto_tokenize(std::string line) {
     std::stringstream ssl(line);

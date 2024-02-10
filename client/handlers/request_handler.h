@@ -12,6 +12,7 @@
 #include <iostream>
 #include "../utils/auto_handler.h"
 #include "response_dispatcher.h"
+#include "../utils/miscellaneous.h"
 #include <utility>
 
 struct Task {

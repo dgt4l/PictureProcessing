@@ -67,7 +67,7 @@ int CommandDispatcher::dispatch_command() {
         std::cout << MESSAGE_PREFIX << "worker with id " << args.at(1) << " already exists" << std::endl;
         break;
       }
-      init_worker_subprocess(args.at(1));
+      init_subprocess(args.at(1), "client", "client/client");
       break;
     }
     case CommandDispatcher::CMD_CODES::UNKNOWN: {
@@ -81,59 +81,3 @@ int CommandDispatcher::dispatch_command() {
   }
   return 1;
 }
-
-void init_worker_subprocess(std::string id) {
-  int child_pid = fork();
-  if (child_pid == 0) {
-    char path[256];
-    char *args[] = {"client", id.data(), NULL};
-    realpath("client/client", path);
-    printf(path);
-    if (execvp(path, args) == -1) {
-      perror("Execv err");
-    }
-  }
-}
-
-// char *solve_address(int id) {
-//   char *buf = (char *)malloc(sizeof(SOCKET_PATTERN) + 10);
-//   sprintf(buf, "%s%d", SOCKET_PATTERN, id + SRC_PORT);
-//   return buf;
-// }
-
-// void *init_socket(void *context, int id, int type) {
-//   void *socket = zmq_socket(context, type);
-//   char *address = solve_address(id);
-//   switch (type) {
-//     case ZMQ_PULL:
-//       if (zmq_bind(socket, address)) perror("zmq_bind");
-//       break;
-//     case ZMQ_PUSH:
-//       if (zmq_connect(socket, address)) perror("zmq_connect");
-//       break;
-//   }
-//   free(address);
-//   return socket;
-// }
-
-// int send_message(void *pusher, char *buffer, size_t size) {
-//   if (zmq_send(pusher, buffer, size, ZMQ_DONTWAIT) == -1) {
-//     perror("zmq_send");
-//     return 0;
-//   }
-//   return 1;
-// }
-
-
-// int solve_server_cmd(std::string const& inString) {
-//   if (!inString.compare("")) return EXIT;
-//   if (!inString.compare("create")) return CREATE;
-//   if (!inString.compare("terminate")) return TERMINATE;
-//   if (!inString.compare("task")) return TASK;
-//   if (!inString.compare("desolate")) return DESOLATE;
-//   if (!inString.compare("delegate")) return DELEGATE;
-//   if (!inString.compare("available")) return AVAILABLE;
-//   if (!inString.compare("status")) return STATUS;
-//   if (!inString.compare("free")) return FREE;
-//   return UNKNOWN;
-// }

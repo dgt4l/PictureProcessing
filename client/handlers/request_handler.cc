@@ -35,7 +35,6 @@ int RequestHandler::read_request() {
                     if (worker.s == Worker::Status::IDLE) {
                         worker.set_task(args.at(3), auto_hash_item(args.at(4), worker.task.filter_hasher));
                         worker.s = Worker::Status::READY;
-                        std::cout << auto_dehash_item(worker.s, worker.status_hasher) << std::endl;
                     } else {
                         SimpleResponse r(Response::BUSY, std::to_string(worker.id));
                         r.dispatch_response();
@@ -63,7 +62,6 @@ int RequestHandler::read_request() {
                                 worker.limit = request_amount;
                                 // ! working process
                                 worker.s = Worker::Status::WORKING;
-                                std::cout << auto_dehash_item(worker.s, worker.status_hasher) << std::endl;
                                 break;
                             }
                             case Worker::Status::WORKING: {
@@ -111,7 +109,6 @@ int RequestHandler::read_request() {
                         Воркер в Status::WORKING сохраняет этот запрос и при окончании текущей итерации получит Status::PAUSED.
                         Воркер в Status::PAUSED отправляет запрос Responser::TRANSFER и ожидает DELEGATE запроса для продолжения.
                     */
-                    
                     int request_amount = stoi(args.at(3));
                     
                     switch(worker.s){
@@ -126,7 +123,7 @@ int RequestHandler::read_request() {
                             break;
                         }
                         case Worker::Status::WORKING: {
-                            
+                            // ! pause inner request
                             break;
                         }
                         case Worker::Status::PAUSED: {
@@ -145,7 +142,8 @@ int RequestHandler::read_request() {
                         {std::to_string(worker.id)},
                         {std::to_string(getpid())},
                         {worker.task.input_path},
-                        {auto_dehash_item(worker.task.filter, worker.task.filter_hasher)}
+                        {auto_dehash_item(worker.task.filter, worker.task.filter_hasher)},
+                        {auto_dehash_item(worker.s, worker.status_hasher)}
                     };
                     ComplexResponse r(Response::STATUS, params);
                     r.dispatch_response();

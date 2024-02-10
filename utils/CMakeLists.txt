@@ -26,8 +26,9 @@ find_library(
 )
 
 set(UTILS_SOURCES
-    auto_handler.cc
     auto_handler.h
+    miscellaneous.cc 
+    miscellaneous.h
 )
 
 add_library(utils ${UTILS_SOURCES})

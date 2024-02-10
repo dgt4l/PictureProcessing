@@ -12,6 +12,7 @@
 #include <list>
 #include <utility>
 #include "worker_map.h"
+#include "../utils/miscellaneous.h"
 #include "../utils/auto_handler.h"
 
 extern zmq::socket_t pusher;

@@ -10,11 +10,6 @@ Worker worker;
 const std::string SERVER_PUSHER_SOCKET_PATTERN = "tcp://127.0.0.1:5555";
 const std::string SERVER_PULLER_SOCKET_PATTERN = "tcp://127.0.0.1:5556";
 
-void response_dispatcher_thread() {
-  while (ResponseDispatcher::getInstance().dispatch_response())
-    ;
-}
-
 void request_handler_thread() {
   while (RequestHandler::getInstance().read_request())
     ;
@@ -33,14 +28,17 @@ int main(int argc, char *argv[]) {
   puller.connect(SERVER_PUSHER_SOCKET_PATTERN);
   pusher.connect(SERVER_PULLER_SOCKET_PATTERN);
 
-  ResponseDispatcher::getInstance().resps << "IAMALIVE " + id + " " + pid;
+  std::vector <std::string> alive_params = {id, pid};
+  Response alive_r(Response::RESPONSE_CODES::IAMALIVE, alive_params);
+  alive_r.dispatch_response();
 
-  std::thread rd_thread(response_dispatcher_thread);
   std::thread rh_thread(request_handler_thread);
 
-  rd_thread.join();
   rh_thread.join();
-  
+
+  std::vector <std::string> dead_params = {id};
+  Response dead_r(Response::RESPONSE_CODES::DEAD, dead_params);
+  dead_r.dispatch_response();
   // pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
   return 0;
 }

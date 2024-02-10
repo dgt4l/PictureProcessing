@@ -43,13 +43,19 @@ int CommandDispatcher::dispatch_command() {
   std::string cmd;
   std::getline(std::cin, cmd);
   std::vector<std::string> args = auto_tokenize(cmd);
-  std::cout << MESSAGE_PREFIX << "Recieved command: " << args.at(0) << std::endl;
+  std::cout << MESSAGE_PREFIX << "Recieved command: " << cmd << std::endl;
   switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
-      pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
+      if (count_workers() == 0) {
+        std::cout << MESSAGE_PREFIX << "EXEC command has no effect: no worker available" << std::endl;
+      }
+      for (int i = 0; i < count_workers(); ++i) {
+        pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
+      }
       break;
     }
     case CommandDispatcher::CMD_CODES::EXIT: {
+      // ! response handler not ending
       return 0;
     }
     case CommandDispatcher::CMD_CODES::CREATE: {

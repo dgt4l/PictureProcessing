@@ -25,7 +25,6 @@ find_library(
 set(HELPERS_SOURCES
     request_handler.cc
     request_handler.h 
-    response_dispatcher.cc
     response_dispatcher.h
 )
 

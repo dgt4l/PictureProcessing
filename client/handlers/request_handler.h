@@ -14,8 +14,6 @@
 #include "response_dispatcher.h"
 #include <utility>
 
-const std::string GLOBAL_ID = "-1";
-
 struct Task {
     enum Filter { NONE, BLUR, CLARITY, EMBOSSING, BORDERS, UPSCALING, NEGATIVE };
     std::string input_path;
@@ -35,12 +33,20 @@ struct Task {
 class Worker {
     public:
       int id;
-      enum class Status { IDLE, READY, WORKING, PAUSED, COMPLETE };
+      enum Status { IDLE, READY, WORKING, PAUSED, COMPLETE };
       Task task = {"", Task::Filter::NONE};
+      const std::list<std::pair<enum Status, std::string>> status_hasher = 
+       {
+        std::make_pair(IDLE, std::string("IDLE")),
+        std::make_pair(READY, std::string("READY")),
+        std::make_pair(WORKING, std::string("WORKING")),
+        std::make_pair(PAUSED, std::string("PAUSED")),
+        std::make_pair(COMPLETE, std::string("COMPLETE"))
+       };
       int limit;
       Status s;
       Worker() {}
-      Worker(enum class Status s_, int id_) : s(s_), id(id_), limit(-1) {}
+      Worker(enum Status s_, int id_) : s(s_), id(id_), limit(-1) {}
       Worker& operator=(const Worker& right) {
         id = right.id;
         task.input_path = right.task.input_path;

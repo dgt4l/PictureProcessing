@@ -29,15 +29,14 @@ int main(int argc, char *argv[]) {
   pusher.connect(SERVER_PULLER_SOCKET_PATTERN);
 
   std::vector <std::string> alive_params = {id, pid};
-  Response alive_r(Response::RESPONSE_CODES::IAMALIVE, alive_params);
+  ComplexResponse alive_r(Response::IAMALIVE, alive_params);
   alive_r.dispatch_response();
 
   std::thread rh_thread(request_handler_thread);
 
   rh_thread.join();
 
-  std::vector <std::string> dead_params = {id};
-  Response dead_r(Response::RESPONSE_CODES::DEAD, dead_params);
+  SimpleResponse dead_r(Response::DEAD, id);
   dead_r.dispatch_response();
   // pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
   return 0;

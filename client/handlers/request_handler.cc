@@ -30,8 +30,13 @@ int RequestHandler::read_request() {
                         Воркер [id] получает Task, выраженный его параметрами: [input_path] [filter].
                         Если воркер в Status:IDLE, он сохраняет себе эту задачу и переводится в Status::READY.
                         Если воркер в других статусах, он остается в том же статусе, и возвращает Responser::BUSY.
-                        Когда воркер достигает Status::COMPLETE, он отправляет воркеру Response::COMPLETE
                     */
+
+                    if(args.size() != 5){
+                        std::cout << MESSAGE_PREFIX << "Error: EXEC TASK <id> <input_path> <filter> \n" << std::endl;
+                        break;
+                    }
+
                     if (worker.s == Worker::Status::IDLE) {
                         worker.set_task(args.at(3), auto_hash_item(args.at(4), worker.task.filter_hasher));
                         worker.s = Worker::Status::READY;
@@ -51,27 +56,35 @@ int RequestHandler::read_request() {
                             начинает работу и пeреходит в Status::Working.
                         Воркер в Status::WORKING меняет лимит на новый, статус не меняет, перед новой итерации перейдет в Status::PAUSED.
                         Воркер в Status::PAUSED пытается начать работать с новым статусом
+                        Когда воркер достигает Status::COMPLETE, он отправляет воркеру Response::COMPLETE
                         ! НЕ РЕАЛИЗОВАНО:    
                     //    ! Но если количество ресурсов, которое было выставлено сервером(в любой момент), 
                     //    ! окажется недостаточным для работы, воркер вернет Status::SHORTAGE
                     */
+
+                    if(args.size() != 4){
+                        std::cout << MESSAGE_PREFIX << "Error: EXEC DELEGATE <id> <amount> \n" << std::endl;
+                        break;
+                    }
+
                     int request_amount = stoi(args.at(3));
                     if (request_amount >= 0) {
                         switch (worker.s) {
                             case Worker::Status::READY: {
                                 worker.limit = request_amount;
-                                // ! working process
-                                worker.s = Worker::Status::WORKING;
+                                worker.s = Worker::Status::WORKING;\
+                                std::thread wt_thread(working_thread);
+                                wt_thread.join();
                                 break;
                             }
                             case Worker::Status::WORKING: {
                                 worker.limit = request_amount;
-                                // ! pause inner request
+                                worker.s = Worker::Status::PAUSED;
                                 break;
                             }
                             case Worker::Status::PAUSED: {
                                 worker.limit = request_amount;
-                                // ! depause inner request
+                                worker.s = Worker::Status::WORKING;
                                 break;
                             }
                             case Worker::Status::COMPLETE:
@@ -92,6 +105,10 @@ int RequestHandler::read_request() {
                         Воркер в Status::COMPLETE, воркер завершает свою работу и возвращает Responser::DEAD.
                         Воркер в другом статусе возвращает Responser::BUSY.
                     */
+                    if (args.size() != 3){
+                        std::cout << MESSAGE_PREFIX << "FREE Request must have an id" << std::endl;
+                        break;
+                    }
                     if (worker.s == Worker::Status::COMPLETE){
                         return 0;
                     } else {
@@ -109,21 +126,34 @@ int RequestHandler::read_request() {
                         Воркер в Status::WORKING сохраняет этот запрос и при окончании текущей итерации получит Status::PAUSED.
                         Воркер в Status::PAUSED отправляет запрос Responser::TRANSFER и ожидает DELEGATE запроса для продолжения.
                     */
+
+                    if(args.size() != 4){
+                        std::cout << MESSAGE_PREFIX << "Error: EXEC DESOLATE <id> <amount> \n" << std::endl;
+                        break;
+                    }
+
                     int request_amount = stoi(args.at(3));
                     
-                    switch(worker.s){
-                        case Worker::Status::IDLE: {
-                            SimpleResponse r(Response::TRANSFER, std::to_string(worker.id));
-                            r.dispatch_response();
-                            break;
-                        }
+                    switch(worker.s) {
+                        case Worker::Status::IDLE:
                         case Worker::Status::READY: {
-                            SimpleResponse r(Response::TRANSFER, std::to_string(worker.id));
+                            int free_amount = 0;
+                            std::vector <std::string> params = {
+                                {std::to_string(worker.id)},
+                                {std::to_string(free_amount)}
+                            };
+                            ComplexResponse r(Response::TRANSFER, params);
                             r.dispatch_response();
                             break;
                         }
                         case Worker::Status::WORKING: {
-                            // ! pause inner request
+                            worker.s = Worker::Status::PAUSED;
+                            // int free_amount = worker.limit;
+                            // std::vector <std::string> params = {
+                            //     {std::to_string(worker.id)},
+                            //     {std::to_string(free_amount)}
+                            // };
+                            // ComplexResponse r(Response::TRANSFER, params);
                             break;
                         }
                         case Worker::Status::PAUSED: {
@@ -138,6 +168,7 @@ int RequestHandler::read_request() {
                         Воркер [id] возвращает Response::STATUS
                         Может быть вызвано без [id] - тогда все воркеры вернут свой Response::STATUS
                     */
+                    
                     std::vector<std::string> params = {
                         {std::to_string(worker.id)},
                         {std::to_string(getpid())},
@@ -156,4 +187,45 @@ int RequestHandler::read_request() {
         }
     }
     return 1;
+}
+
+void working_thread() {
+    for (int i = 0; i < 3; ++i) {
+        pid_t pid = working_iteration(i);
+        int status;
+        while (-1 == waitpid(pid, &status, 0)) {
+            usleep(10);
+        }
+        if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+            std::cout << "[WorkingThread] Error completion iteration: " << i << ", process pid failed: " << pid << std::endl;
+            break;
+        }
+        while (worker.s == Worker::Status::PAUSED) {
+            usleep(10);
+        }
+    }
+    std::vector<std::string> params = {
+        {std::to_string(worker.id)}, 
+        {append_filename_prefix(worker.task.input_path, "output_")}
+    };
+    worker.s = Worker::Status::COMPLETE;
+    ComplexResponse r(Response::COMPLETE, params);
+    r.dispatch_response();
+}
+
+int working_iteration(int channel) {
+    std::string upper_filter = auto_dehash_item(worker.task.filter, worker.task.filter_hasher);
+    std::string input_path = worker.task.input_path;
+    std::string output_path  = append_filename_prefix(input_path, "output_");
+    if (channel != 0) input_path = output_path;
+    char *mtci_args[] = {
+        "mtci_main",
+        "-i", input_path.data(),
+        "-o", output_path.data(),
+        "-t", to_lower_str(upper_filter).data(),
+        "-j", std::to_string(worker.limit).data(),
+        "-c", std::to_string(channel).data(),
+        NULL
+    };
+    return init_subprocess("mtci/mtci_main", mtci_args);
 }

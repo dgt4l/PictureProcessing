@@ -38,6 +38,5 @@ int main(int argc, char *argv[]) {
 
   SimpleResponse dead_r(Response::DEAD, id);
   dead_r.dispatch_response();
-  // pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
   return 0;
 }

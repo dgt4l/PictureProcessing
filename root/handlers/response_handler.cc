@@ -20,24 +20,25 @@ int ResponseHandler::read_response() {
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::COMPLETE: {
-                
+                /*
+                    Responser::COMPLETE
+                    Возвращается, когда воркер успешно завершает свою задачу. 
+                    Содержит в себе свой [id] и [output_path].
+                */
+                CommandDispatcher::getInstance().dispatch_command("EXEC FREE " + args.at(1));
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::BUSY: {
-                
                 break;
             }
-            
+    
             case ResponseHandler::RESPONSE_CODES::TOOSWEET: {
-                
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::SHORTAGE: {
-                
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::TRANSFER: {
-                
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::STATUS: {

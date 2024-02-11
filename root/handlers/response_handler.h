@@ -13,6 +13,7 @@
 #include "../utils/auto_handler.h"
 #include "../utils/miscellaneous.h"
 #include <utility>
+#include "command_dispatcher.h"
 
 extern zmq::socket_t puller;
 

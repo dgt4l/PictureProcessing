@@ -39,9 +39,7 @@ bool isInt(const std::string& str) {
     return true;
 }
 
-int CommandDispatcher::dispatch_command() {
-  std::string cmd;
-  std::getline(std::cin, cmd);
+int CommandDispatcher::dispatch_command(std::string cmd) {
   std::vector<std::string> args = auto_tokenize(cmd);
   std::cout << MESSAGE_PREFIX << "Recieved command: " << cmd << std::endl;
   switch (auto_hash_item(cmd, hasher)) {
@@ -55,8 +53,8 @@ int CommandDispatcher::dispatch_command() {
       break;
     }
     case CommandDispatcher::CMD_CODES::EXIT: {
-      // ! response handler not ending
-      return 0;
+      
+      raise(SIGINT);
     }
     case CommandDispatcher::CMD_CODES::CREATE: {
       if (!isInt(args.at(1))) {
@@ -67,7 +65,8 @@ int CommandDispatcher::dispatch_command() {
         std::cout << MESSAGE_PREFIX << "worker with id " << args.at(1) << " already exists" << std::endl;
         break;
       }
-      init_subprocess(args.at(1), "client", "client/client");
+      char *worker_args[] = {"client", args.at(1).data(), NULL};
+      init_subprocess("client/client", worker_args);
       break;
     }
     case CommandDispatcher::CMD_CODES::UNKNOWN: {
@@ -80,4 +79,10 @@ int CommandDispatcher::dispatch_command() {
     }
   }
   return 1;
+}
+
+int CommandDispatcher::dispatch_command() {
+  std::string cmd;
+  std::getline(std::cin, cmd);
+  return dispatch_command(cmd);
 }

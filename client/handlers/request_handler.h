@@ -14,6 +14,8 @@
 #include "response_dispatcher.h"
 #include "../utils/miscellaneous.h"
 #include <utility>
+#include <thread>
+#include <sys/wait.h>
 
 struct Task {
     enum Filter { NONE, BLUR, CLARITY, EMBOSSING, BORDERS, UPSCALING, NEGATIVE };
@@ -89,5 +91,8 @@ class RequestHandler {
     }
     int read_request();
 };
+
+void working_thread();
+int working_iteration(int channel);
 
 #endif // !CLIENT_HANDLERS_REQUEST_HANDLER_H

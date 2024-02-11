@@ -11,7 +11,7 @@ int count_workers() {
     return worker_map.size();
 }
 
-int get_pid(int id){
+int get_pid(int id) {
     return worker_map.at(id);
 }
 

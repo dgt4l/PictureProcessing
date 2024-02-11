@@ -58,7 +58,8 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "map": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "codecvt": "cpp"
     },
     "cmake.configureOnOpen": true,
     "cmake.sourceDirectory": "${workspaceFolder}/home/cojod/.cache/yay/libtd/src/libtd/tdactor"

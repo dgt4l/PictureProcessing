@@ -35,6 +35,7 @@ class CommandDispatcher {
       static CommandDispatcher instance;
       return instance;
     }
+    int dispatch_command(std::string cmd);
     int dispatch_command();
 };
 

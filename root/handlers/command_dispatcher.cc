@@ -53,7 +53,7 @@ int CommandDispatcher::dispatch_command(std::string cmd) {
       break;
     }
     case CommandDispatcher::CMD_CODES::EXIT: {
-      
+      for (int i = 0; i )
       raise(SIGINT);
     }
     case CommandDispatcher::CMD_CODES::CREATE: {

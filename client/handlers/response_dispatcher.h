@@ -11,7 +11,7 @@
 #include <iostream>
 #include <list>
 #include <utility>
-#include "../root/handlers/worker_map.h"
+#include "../../root/manager/worker_map.h"
 #include "../../utils/auto_handler.h"
 
 extern zmq::socket_t pusher;

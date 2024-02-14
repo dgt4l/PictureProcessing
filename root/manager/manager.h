@@ -2,22 +2,33 @@
 #define RESOURCEMANAGER_H
 
 #include <iostream>
+#include "worker_map.h"
 
 class ResourseManager {
     private:
-        int resource_amount;
-        int min_amount;
+        // * how much threads available for new workers
+        int balance;
+        // * maximum threads capacity for swarm
+        const int capacity;
+        enum STRATEGY_TYPE { SURRENDER, DESOLATE, DIVIDE }; // * another could be implemented
     public:
-        ResourseManager();
+        ResourseManager(const int capacity_) : balance(capacity_), capacity(capacity_) {}
 
-        ~ResourseManager();
+        bool delegate_resources(int amount_, int id);
+        bool solve_resource_shortage(int amount_, int id) {
+            // * try fast solve (if possible)
+            // * if successful return True
+            // * else do slow solve with preferred strategy in separated thread
+            // * after slow solve thread launch notify client about it with return False
+        }
 
-        int getResourceValue() const;
+        STRATEGY_TYPE decide_strategy() {
+            return SURRENDER;
+        }
 
-        void setResourceValue(int value);
+        void slow_solve_thread();
 
-        int calculateResource(int id, int filter);
-
+        void return_threads(int id);
         
 };
 

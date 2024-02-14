@@ -11,7 +11,7 @@
 #include <iostream>
 #include <list>
 #include <utility>
-#include "worker_map.h"
+#include "../manager/worker_map.h"
 #include "../utils/miscellaneous.h"
 #include "../utils/auto_handler.h"
 

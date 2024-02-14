@@ -16,6 +16,7 @@
 #include "command_dispatcher.h"
 
 extern zmq::socket_t puller;
+extern std::string response;
 
 class ResponseHandler {
   private:
@@ -36,11 +37,13 @@ class ResponseHandler {
         std::make_pair(STATUS, std::string("STATUS"))
        };
   public:
+    
     static ResponseHandler& getInstance() {
       static ResponseHandler instance;
       return instance;
     }
-    int read_response();
+    int read_response(std::string response);
+    std::string ResponseHandler::wait_response(int id, std::string type, std::string response);
 };
 
 #endif  // UTIL_ZMQ_HELPERS_RESPONSE_HANDLER

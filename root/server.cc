@@ -3,8 +3,6 @@
 #include "server.h"
 #include "../utils/socket_pattern.h"
 
-// const int MAX_CMD_LENGTH = 100;
-// const int BUFFER_SIZE = 2048;
 const char SERVER_PREFIX[] = "[Server]";
 
 std::map<int, int> worker_map;
@@ -12,6 +10,8 @@ std::map<int, int> worker_map;
 zmq::context_t ctx;
 zmq::socket_t pusher(ctx, zmq::socket_type::push);
 zmq::socket_t puller(ctx, zmq::socket_type::pull);
+
+std::string response = s_recv(puller, ZMQ_DONTWAIT);
 
 void command_dispatcher_thread() {
   while (CommandDispatcher::getInstance().dispatch_command())

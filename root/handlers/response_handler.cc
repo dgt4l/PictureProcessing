@@ -2,8 +2,7 @@
 
 const std::string MESSAGE_PREFIX = "[ResponseHandler] ";
 
-int ResponseHandler::read_response() {
-    std::string response = s_recv(puller, ZMQ_DONTWAIT);
+int ResponseHandler::read_response(const std::string response) {
     if (response.length() > 0) {
         std::vector<std::string> args = auto_tokenize(response);
         std::cout << MESSAGE_PREFIX << "Recieved response: " << response << std::endl;
@@ -29,22 +28,47 @@ int ResponseHandler::read_response() {
                 break;
             }
             case ResponseHandler::RESPONSE_CODES::BUSY: {
+                // handle_error();
                 break;
             }
     
             case ResponseHandler::RESPONSE_CODES::TOOSWEET: {
+                // handle_error();
                 break;
             }
+
             case ResponseHandler::RESPONSE_CODES::SHORTAGE: {
+
                 break;
             }
+
             case ResponseHandler::RESPONSE_CODES::TRANSFER: {
+                
                 break;
             }
+
             case ResponseHandler::RESPONSE_CODES::STATUS: {
                 break;
             }
         }
     }
     return 1;
+}
+
+std::string ResponseHandler::wait_response(int id, std::string type, std::string response) {
+    if (response.length() > 0) {
+        std::vector<std::string> args = auto_tokenize(response);
+        std::cout << "[ResponseWaiter] " << "Recieved response: " << response << std::endl;
+        if (args.at(0) == type &&
+            args.at(1) == std::to_string(id)) {
+                return response;
+        }
+    }
+    return std::string();
+}
+
+void wait_response_thread(int id, std::string type, std::string* output) {
+    std::string tmp_output;
+    while (tmp_output.length() == 0) tmp_output = ResponseHandler::getInstance().wait_response(id, type, response);
+    output = tmp_output;    
 }

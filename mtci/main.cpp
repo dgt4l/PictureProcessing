@@ -107,7 +107,10 @@ int main(int argc, char **argv) {
   bool flag = false;
   switch (filter) {
     case FILTER_BLUR:
+      auto begin = std::chrono::steady_clock::now();
       flag = mt_apply_blur_filter(inp_img, threads_number, channel).write(out_filename);
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
       break;
     case FILTER_BORDERS:
       flag = mt_apply_borders_filter(inp_img, threads_number, channel).write(out_filename);

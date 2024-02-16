@@ -3,6 +3,8 @@
 
 #include "zmq.hpp"
 #include <thread>
+#include <string>
+#include "manager/manager.h"
 
 extern zmq::context_t ctx;
 extern zmq::socket_t pusher;

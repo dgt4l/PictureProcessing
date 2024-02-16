@@ -2,7 +2,9 @@
 
 const std::string MESSAGE_PREFIX = "[ResponseHandler] ";
 
-int ResponseHandler::read_response(const std::string response) {
+
+int ResponseHandler::read_response() {
+  std::string response = s_recv(puller, ZMQ_DONTWAIT);
   if (response.length() > 0) {
     std::vector<std::string> args = auto_tokenize(response);
     std::cout << MESSAGE_PREFIX << "Recieved response: " << response
@@ -12,11 +14,11 @@ int ResponseHandler::read_response(const std::string response) {
         break;
       }
       case ResponseHandler::RESPONSE_CODES::IAMALIVE: {
-        append_worker(stoi(args.at(1)), stoi(args.at(2)));
+        worker_map.append_worker(stoi(args.at(1)), stoi(args.at(2)), 0, 0);
         break;
       }
       case ResponseHandler::RESPONSE_CODES::DEAD: {
-        remove_worker(stoi(args.at(1)));
+        worker_map.remove_worker(stoi(args.at(1)));
         break;
       }
       case ResponseHandler::RESPONSE_CODES::COMPLETE: {
@@ -61,15 +63,30 @@ int ResponseHandler::read_response(const std::string response) {
   return 1;
 }
 
-int ResponseHandler::desolate_append_amount(ResourceCollecting rc, int amount) {
+int ResponseHandler::solve_transfer_amount(ResourceCollecting rc, int amount) {
   if (!(is_collecting_now && rc.active)) return 0;
-  int amount_left = rc.target - rc.current;
-  if (amount < amount_left) {
-    // * get everything worker can offer
-    rc.current += amount;
-    return 0;
+  switch (rc.strategy) {
+    case ResourseManager::DESOLATE: {
+      int amount_left = rc.target - rc.current;
+      if (amount < amount_left) {
+        // * get everything worker can offer
+        rc.current += amount;
+        return 0;
+      }
+      // * get only needed amount
+      rc.active = is_collecting_now = false;
+      return amount - amount_left;
+    }
+
+    case ResourseManager::DIVIDE: {
+      return 0;
+    }
   }
-  // * get only needed amount
-  rc.active = is_collecting_now = false;
-  return amount - amount_left;
+}
+
+bool ResponseHandler::set_resource_collecting(int target_, enum ResourseManager::STRATEGY_TYPE strategy_) {
+  if (is_collecting_now) return false;
+  is_collecting_now = true;
+  rc = ResourceCollecting(target_, strategy_);
+  return rc.start_collecting();
 }

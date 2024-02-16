@@ -12,32 +12,38 @@
 #include <zmq.hpp>
 
 #include "../../lib/cppzmq/zmq_helpers.hpp"
-#include "../manager/manager.h"
+#include "manager/manager.h"
 #include "../utils/auto_handler.h"
 #include "../utils/miscellaneous.h"
 #include "command_dispatcher.h"
 
 extern zmq::socket_t puller;
-extern std::string response;
 
 class ResponseHandler {
  public:
+  bool is_collecting_now = false;
   struct ResourceCollecting {
     int current = 0;
-    const int target;
+    int target;
     bool active = false;
     ResourseManager::STRATEGY_TYPE strategy;
     ResourceCollecting() : target(0) {}
     ResourceCollecting(int target_,
-                       enum ResourseManager::STRATEGY_TYPE strategy_)
+                       ResourseManager::STRATEGY_TYPE strategy_)
         : target(target_), strategy(strategy_) {}
-
+    ResourceCollecting(ResourceCollecting &other) {
+      current = other.current;
+      target = other.target;
+      active = other.active;
+      strategy = other.strategy;
+    }
     bool start_collecting() {
       if (current >= target) return false;
       active = true;
       return true;
     }
   };
+  ResourceCollecting rc; 
 
  private:
   enum RESPONSE_CODES {
@@ -64,21 +70,18 @@ class ResponseHandler {
       std::make_pair(SHORTAGE, std::string("SHORTAGE")),
       std::make_pair(TRANSFER, std::string("TRANSFER")),
       std::make_pair(STATUS, std::string("STATUS"))};
-  bool is_collecting_now = false;
-  ResourceCollecting rc;
 
  public:
   static ResponseHandler& getInstance() {
     static ResponseHandler instance;
     return instance;
   }
-  int read_response(std::string response);
-  std::string ResponseHandler::wait_response(int id, std::string type,
-                                             std::string response);
+  int read_response();
   bool _resource_collecting(int target,
-                            enum ResourseManager::STRATEGY_TYPE strategy_) {}
-
-  int desolate_append_amount(ResourceCollecting rc, int amount);
+                            ResourseManager::STRATEGY_TYPE strategy_) {}
+  
+  int solve_transfer_amount(ResourceCollecting rc, int amount);
+  bool set_resource_collecting(int target, ResourseManager::STRATEGY_TYPE strategy_);
 };
 
 #endif  // UTIL_ZMQ_HELPERS_RESPONSE_HANDLER

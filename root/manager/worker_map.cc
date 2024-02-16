@@ -6,7 +6,7 @@ void WorkerMap::append_worker(int id, int pid_, int limit_, int min_limit_) {
   std::cout << MESSAGE_PREFIX << " New worker added: [" << id << ":" << pid_
             << ":" << limit_ << ":" << min_limit_ << "]" << std::endl;
   WorkerMapElem worker(pid_, limit_, min_limit_);
-  worker_map[id] = worker;
+  worker_map.insert({id, worker});
 }
 
 int WorkerMap::count_workers() { return worker_map.size(); }

@@ -1,35 +1,55 @@
 #include "manager.h"
 
-bool ResourseManager::delegate_resources(int amount_, int id) {
+
+static int calculate_resources(int width_, int height_) {
+  return 5;
+}
+
+static bool delegate_resources(int amount_, int id) {
   if (balance >= amount_) {
     balance -= amount_;
     worker_map.set_limit(id, amount_);
-    // * worker map associate with id specific amount
-  } else {
-    // ? no available resources for this task
-    return solve_resource_shortage(amount_, id);
+    return true;
   }
-  return true;
+  return solve_resource_shortage(amount_, id);
 }
 
-bool ResourseManager::solve_resource_shortage(int amount_, int id) {
-  slow_solve_thread();
+static bool solve_resource_shortage(int amount_, int id) {
+  std::thread ss_thread(ResourseManager::slow_solve_thread, amount_, id);
   return false;
 }
 
-void ResourseManager::slow_solve_thread() {
+void ResourseManager::slow_solve_thread(int amount_, int id) {
   // * do fucking slow solve
   // * pretty tough to implement but essential
-  switch (decide_strategy()) {
+  switch (DESOLATE) {
       // * ...
     case SURRENDER: {
       // * notify client about failed attempt to allocate resources
       break;
     }
     case DESOLATE: {
+      // ResponseHandler::getInstance().set_resource_collecting(amount_, DESOLATE);
+      // CommandDispatcher::getInstance().dispatch_command("EXEC DESOLATE");
       break;
     }
     case DIVIDE: {
+      // int buffer = 0;
+      // int subtract = amount_ / worker_map.count_workers();
+      // if (subtract == 0) { subtract = 1; }
+      // for (const auto& [key, value] : worker_map){
+      //   if (buffer < amount_){
+      //     if (it->second.limit - it->second.min_limit >= subtract){
+      //       it->second.limit -= subtract;
+      //       buffer += subtract;
+      //     } else {
+      //       it->second.limit -= it->second.limit - it->second.min_limit;
+      //       buffer += it->second.limit - it->second.min_limit;
+      //     }
+      //   } else {
+      //     break;
+      //   }
+      // }
       break;
     }
   }

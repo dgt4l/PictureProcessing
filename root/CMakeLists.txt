@@ -23,6 +23,7 @@ set(SERVER_SOURCES
 )
 
 add_subdirectory(handlers)
+add_subdirectory(manager)
 
 add_executable(server ${SERVER_SOURCES})
 

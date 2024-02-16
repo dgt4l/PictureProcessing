@@ -11,7 +11,7 @@ add_compile_options(-Wextra)
 add_compile_options(-pedantic)
 add_compile_options(-g)
 
-include_directories(lib)
+include_directories(lib root)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

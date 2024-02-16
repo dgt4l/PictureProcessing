@@ -22,17 +22,15 @@ find_library(
 )
 
 
-set(HELPERS_SOURCES
-    command_dispatcher.h
-    command_dispatcher.cc
-    response_handler.h
-    response_handler.cc
+set(MANAGER_SOURCES
+    worker_map.cc 
+    worker_map.h
+    manager.cc 
+    manager.h
 )
 
-add_library(helper ${HELPERS_SOURCES})
+add_library(manager ${MANAGER_SOURCES})
 
-target_link_libraries(helper PRIVATE ${ZeroMQ_LIBRARY})
-target_link_libraries(helper PRIVATE utils)
-target_link_libraries(helper PRIVATE manager)
+target_link_libraries(manager PRIVATE ${ZeroMQ_LIBRARY})
 
-target_include_directories(helper PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(manager PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

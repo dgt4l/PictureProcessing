@@ -3,40 +3,39 @@
 const std::string MESSAGE_PREFIX = "[CommandDispatcher] ";
 
 std::string getSecondWord(const std::string& str) {
-    std::string secondWord = "";
-    int wordCount = 0;
-    std::string word;
+  std::string secondWord = "";
+  int wordCount = 0;
+  std::string word;
 
-    for (char c : str) {
-        if (c != ' ') {
-            word += c;
-        } else {
-            if (!word.empty()) {
-                wordCount++;
-                if (wordCount == 2) {
-                    secondWord = word;
-                    break;
-                }
-                word = "";
-            } 
+  for (char c : str) {
+    if (c != ' ') {
+      word += c;
+    } else {
+      if (!word.empty()) {
+        wordCount++;
+        if (wordCount == 2) {
+          secondWord = word;
+          break;
         }
+        word = "";
+      }
     }
+  }
 
-    if (!word.empty() && wordCount == 1) {
-        secondWord = word;
-        return secondWord;
-    }
-    return "empty";
+  if (!word.empty() && wordCount == 1) {
+    secondWord = word;
+    return secondWord;
+  }
+  return "empty";
 }
 
-
 bool isInt(const std::string& str) {
-    for (char ch : str) {
-        if (!isdigit(ch)) {
-            return false;
-        }
+  for (char ch : str) {
+    if (!isdigit(ch)) {
+      return false;
     }
-    return true;
+  }
+  return true;
 }
 
 int CommandDispatcher::dispatch_command(std::string cmd) {
@@ -45,7 +44,9 @@ int CommandDispatcher::dispatch_command(std::string cmd) {
   switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
       if (count_workers() == 0) {
-        std::cout << MESSAGE_PREFIX << "EXEC command has no effect: no worker available" << std::endl;
+        std::cout << MESSAGE_PREFIX
+                  << "EXEC command has no effect: no worker available"
+                  << std::endl;
       }
       for (int i = 0; i < count_workers(); ++i) {
         pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
@@ -53,19 +54,20 @@ int CommandDispatcher::dispatch_command(std::string cmd) {
       break;
     }
     case CommandDispatcher::CMD_CODES::EXIT: {
-      for (int i = 0; i )
-      raise(SIGINT);
+      for (int i = 0; i) raise(SIGINT);
     }
     case CommandDispatcher::CMD_CODES::CREATE: {
       if (!isInt(args.at(1))) {
-        std::cout << MESSAGE_PREFIX << "DOLBAEB CHISLO VVODI NAHUI" << std::endl;
+        std::cout << MESSAGE_PREFIX << "DOLBAEB CHISLO VVODI NAHUI"
+                  << std::endl;
         break;
       }
       if (is_reserved(stoi(args.at(1)))) {
-        std::cout << MESSAGE_PREFIX << "worker with id " << args.at(1) << " already exists" << std::endl;
+        std::cout << MESSAGE_PREFIX << "worker with id " << args.at(1)
+                  << " already exists" << std::endl;
         break;
       }
-      char *worker_args[] = {"client", args.at(1).data(), NULL};
+      char* worker_args[] = {"client", args.at(1).data(), NULL};
       init_subprocess("client/client", worker_args);
       break;
     }

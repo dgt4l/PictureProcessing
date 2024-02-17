@@ -27,4 +27,5 @@ add_subdirectory(manager)
 
 add_executable(server ${SERVER_SOURCES})
 
+target_link_libraries(server PRIVATE manager)
 target_link_libraries(server PRIVATE helper)

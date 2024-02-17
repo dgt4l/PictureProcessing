@@ -15,28 +15,30 @@ class ResourseManager {
   // * how much threads available for new workers
   int balance;
   // * maximum threads capacity for swarm
-  const int capacity;
+  int capacity;
 
  public:
   enum STRATEGY_TYPE {
-    SURRENDER,
-    DESOLATE,
-    DIVIDE,
+    NONE, // * everythin is OK, no need to apply strategy
+    SURRENDER, // * server cannot afford this much resources
+    DESOLATE, // * server is pulling all gray resources
+    DIVIDE, // * applies dividing strategy
+    QUENED // * server doesnt have this much resources available now, but retries if possible later
   };  // * another could be implemented
-  ResourseManager(const int capacity_)
+  ResourseManager() : balance(0), capacity(0) {}
+  ResourseManager(int capacity_)
       : balance(capacity_), capacity(capacity_) {}
+  
+  void set_capacity(int capacity_) {capacity = capacity_; balance = capacity;}
 
+  int calculate_limit(int width_, int height_);
+  int calculate_hard_limit(int width_, int height_);
 
-  void common_worker_launch(std::string path_, int width_, int height_);
+  STRATEGY_TYPE delegate_resources(int limit, int hard_limit, int id);
 
-  static int calculate_resources(int width_, int height_);
+  STRATEGY_TYPE decide_strategy(int amount_);
 
-  bool delegate_resources(int amount_, int id);
-  bool solve_resource_shortage(int amount_, int id);
-
-  STRATEGY_TYPE decide_strategy() { return SURRENDER; }
-
-  static void slow_solve_thread(int amount_, int id);
+  static void slow_solve_thread(int amount_, int id, bool &status);
 
   void return_threads(int id);
 

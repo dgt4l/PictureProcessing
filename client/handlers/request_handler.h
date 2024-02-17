@@ -47,6 +47,7 @@ class Worker {
         std::make_pair(COMPLETE, std::string("COMPLETE"))
        };
       int limit;
+      int hard_limit;
       Status s;
       Worker() {}
       Worker(enum Status s_, int id_) : s(s_), id(id_), limit(-1) {}

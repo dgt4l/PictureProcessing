@@ -1,80 +1,45 @@
 #include "manager.h"
 
 
-static int calculate_resources(int width_, int height_) {
+const std::string MESSAGE_PREFIX = "[ResourceManager] ";
+
+int ResourseManager::calculate_limit(int width_, int height_) {
+  std::cout << "Current worker count:" << worker_map.count_workers() << std::endl;
+  if (worker_map.count_workers() == 1) return balance;
   return 5;
 }
 
-static bool delegate_resources(int amount_, int id) {
-  if (balance >= amount_) {
-    balance -= amount_;
-    worker_map.set_limit(id, amount_);
-    return true;
-  }
-  return solve_resource_shortage(amount_, id);
+int ResourseManager::calculate_hard_limit(int width_, int height_) {
+  return 5;
 }
 
-static bool solve_resource_shortage(int amount_, int id) {
-  std::thread ss_thread(ResourseManager::slow_solve_thread, amount_, id);
-  return false;
+
+ResourseManager::STRATEGY_TYPE ResourseManager::delegate_resources(int limit, int hard_limit, int id) {
+  if (balance >= limit) {
+    balance -= limit;
+    std::cout << MESSAGE_PREFIX << "Resources delegated, balance: " <<
+                std::to_string(balance + limit) + "->" + std::to_string(balance) << std::endl;
+    worker_map.set_limit(id, limit);
+    worker_map.set_hard_limit(id, hard_limit);
+    return NONE;
+  }
+  std::cout << MESSAGE_PREFIX << "Resources couldnot be delegated, balance: " <<
+                std::to_string(balance) << std::endl;
+  return decide_strategy(limit);
 }
 
-void ResourseManager::slow_solve_thread(int amount_, int id) {
-  // * do fucking slow solve
-  // * pretty tough to implement but essential
-  switch (DESOLATE) {
-      // * ...
-    case SURRENDER: {
-      // * notify client about failed attempt to allocate resources
-      break;
-    }
-    case DESOLATE: {
-      // ResponseHandler::getInstance().set_resource_collecting(amount_, DESOLATE);
-      // CommandDispatcher::getInstance().dispatch_command("EXEC DESOLATE");
-      break;
-    }
-    case DIVIDE: {
-      // int buffer = 0;
-      // int subtract = amount_ / worker_map.count_workers();
-      // if (subtract == 0) { subtract = 1; }
-      // for (const auto& [key, value] : worker_map){
-      //   if (buffer < amount_){
-      //     if (it->second.limit - it->second.min_limit >= subtract){
-      //       it->second.limit -= subtract;
-      //       buffer += subtract;
-      //     } else {
-      //       it->second.limit -= it->second.limit - it->second.min_limit;
-      //       buffer += it->second.limit - it->second.min_limit;
-      //     }
-      //   } else {
-      //     break;
-      //   }
-      // }
-      break;
-    }
-  }
+ResourseManager::STRATEGY_TYPE ResourseManager::decide_strategy(int amount_) {
+  int gray_amount = worker_map.gray_resources();
+  std::cout << "Trying to allocate: " << amount_ << "/" << gray_amount << std::endl;
+  if (capacity < amount_) return SURRENDER;
+  if (gray_amount < amount_) return SURRENDER; // * but really is QUENED, not implemented
+  return DESOLATE;
 }
 
 void ResourseManager::return_threads(int id) {
   int buff = worker_map.get_limit(id);
   worker_map.set_limit(id, 0);
+  worker_map.set_hard_limit(id, 0);
   // * set worker threads to zero
   balance += buff;  // * here goes worker balance
 }
-
-// int ResourseManager::solve_thread_to_image(Image& image, int id){
-//     int image_size = return_size_image(image);
-
-//     if(image_size <;600){
-//         return 3;
-//     } else if(image_size < 1000){
-//         return 4;
-//     } else {
-//         return 5;
-//     }
-// }
-
-// int ResourseManager::return_size_image(Image& image) {
-//     int image_size = image.h * image.w;
-//     return image_size;
-// }

@@ -74,7 +74,7 @@ int RequestHandler::read_request() {
                                 worker.limit = request_amount;
                                 worker.s = Worker::Status::WORKING;\
                                 std::thread wt_thread(working_thread);
-                                wt_thread.join();
+                                wt_thread.detach();
                                 break;
                             }
                             case Worker::Status::WORKING: {
@@ -127,33 +127,29 @@ int RequestHandler::read_request() {
                         Воркер в Status::PAUSED отправляет запрос Responser::TRANSFER и ожидает DELEGATE запроса для продолжения.
                     */
 
-                    if(args.size() != 4){
-                        std::cout << MESSAGE_PREFIX << "Error: EXEC DESOLATE <id> <amount> \n" << std::endl;
-                        break;
-                    }
-
-                    int request_amount = stoi(args.at(3));
+                    // int request_amount = stoi(args.at(3));
                     
                     switch(worker.s) {
                         case Worker::Status::IDLE:
                         case Worker::Status::READY: {
-                            int free_amount = 0;
+                            // int free_amount = 0;
+                            // std::vector <std::string> params = {
+                            //     {std::to_string(worker.id)},
+                            //     {std::to_string(free_amount)}
+                            // };
+                            // ComplexResponse r(Response::TRANSFER, params);
+                            // r.dispatch_response();
+                            break;
+                        }
+                        case Worker::Status::WORKING: {
+                            worker.s = Worker::Status::PAUSED;
+                            int free_amount = worker.limit;
                             std::vector <std::string> params = {
                                 {std::to_string(worker.id)},
                                 {std::to_string(free_amount)}
                             };
                             ComplexResponse r(Response::TRANSFER, params);
                             r.dispatch_response();
-                            break;
-                        }
-                        case Worker::Status::WORKING: {
-                            worker.s = Worker::Status::PAUSED;
-                            // int free_amount = worker.limit;
-                            // std::vector <std::string> params = {
-                            //     {std::to_string(worker.id)},
-                            //     {std::to_string(free_amount)}
-                            // };
-                            // ComplexResponse r(Response::TRANSFER, params);
                             break;
                         }
                         case Worker::Status::PAUSED: {

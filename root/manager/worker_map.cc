@@ -15,6 +15,8 @@ int WorkerMap::get_pid(int id) { return worker_map.at(id).pid; }
 
 int WorkerMap::get_limit(int id) { return worker_map.at(id).limit; }
 
+int WorkerMap::get_hard_limit(int id) { return worker_map.at(id).min_limit; }
+
 bool WorkerMap::is_reserved(int id) {
   auto it = worker_map.find(id);
   if (it == worker_map.end()) {
@@ -24,11 +26,23 @@ bool WorkerMap::is_reserved(int id) {
 }
 
 void WorkerMap::remove_worker(int id) {
-  std::cout << MESSAGE_PREFIX << " Worker with id: [" << id << "]"
-            << " has been removed" << std::endl;
   worker_map.erase(id);
+  std::cout << MESSAGE_PREFIX << " Worker with id: [" << id << "]"
+            << " has been removed, current count: " << count_workers() << std::endl;
 }
 
 void WorkerMap::set_limit(int id, int limit_) {
   worker_map.at(id).limit = limit_;
+}
+
+void WorkerMap::set_hard_limit(int id, int hard_limit_) {
+  worker_map.at(id).min_limit = hard_limit_;
+}
+
+int WorkerMap::gray_resources(){
+  int gray_buffer = 0;
+  for(auto it = worker_map.begin(); it != worker_map.end(); ++it){
+    gray_buffer += it->second.limit - it->second.min_limit;
+  }
+  return gray_buffer;
 }

@@ -21,8 +21,11 @@ class WorkerMap {
   bool is_reserved(int id);
   int get_pid(int id);
   int get_limit(int id);
+  int get_hard_limit(int id);
   void remove_worker(int id);
   void set_limit(int id, int limit);
+  void set_hard_limit(int id, int hard_limit_);
+  int gray_resources();
 };
 
 extern WorkerMap worker_map;

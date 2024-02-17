@@ -18,6 +18,7 @@
 #include "command_dispatcher.h"
 
 extern zmq::socket_t puller;
+extern ResourseManager rm;
 
 class ResponseHandler {
  public:
@@ -82,6 +83,7 @@ class ResponseHandler {
   
   int solve_transfer_amount(ResourceCollecting rc, int amount);
   bool set_resource_collecting(int target, ResourseManager::STRATEGY_TYPE strategy_);
+  int append_resource_collecting(int amount);
 };
 
 #endif  // UTIL_ZMQ_HELPERS_RESPONSE_HANDLER

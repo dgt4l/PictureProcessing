@@ -5,7 +5,7 @@ int init_subprocess(const char *xpath, char *args[]) {
   if (child_pid == 0) {
     char path[256];
     realpath(xpath, path);
-    for (int i = 0; args[i]; ++i) std::cout << args[i] << " ";
+    // for (int i = 0; args[i]; ++i) std::cout << args[i] << " ";
     std::cout << path << std::endl;
     if (execvp(path, args) == -1) {
       perror("Execv err");

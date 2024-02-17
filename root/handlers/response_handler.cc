@@ -1,13 +1,13 @@
 #include "response_handler.h"
 
-const std::string MESSAGE_PREFIX = "[ResponseHandler] ";
+const std::string MESSAGE_PREFIX = "\e[0;32m[ResponseHandler]\e[0m\t\t ";
 
 int ResponseHandler::read_response() {
   std::string response = s_recv(puller, ZMQ_DONTWAIT);
   if (response.length() > 0) {
     std::vector<std::string> args = auto_tokenize(response);
-    std::cout << MESSAGE_PREFIX << "Recieved response: " << response
-              << std::endl;
+    std::cout << MESSAGE_PREFIX << "Recieved response: \e[0;95m" << response
+              << "\e[0m" << std::endl;
     switch (auto_hash_item(response, hasher)) {
       case ResponseHandler::RESPONSE_CODES::UNKNOWN: {
         break;
@@ -17,17 +17,26 @@ int ResponseHandler::read_response() {
         break;
       }
       case ResponseHandler::RESPONSE_CODES::DEAD: {
-        rm.return_threads(stoi(args.at(1)));
-        worker_map.remove_worker(stoi(args.at(1)));
+        int id = stoi(args.at(1));
+        rm.return_threads(id);
+        worker_map.remove_worker(id);
+        for (int i = 0; i < wq.size(); ++i) {
+          int candidate = wq.pop_worker();
+          std::cout << MESSAGE_PREFIX << "Trying allocate resources for quened worker: " << candidate << std::endl;
+          int limit = worker_map.get_limit(candidate);
+          int hard_limit = worker_map.get_hard_limit(candidate);
+          solve_worker_fate(rm.delegate_resources(limit, hard_limit, worker_map.get_limit(candidate)), candidate);
+        }
         break;
       }
+
       case ResponseHandler::RESPONSE_CODES::COMPLETE: {
         /*
             Responser::COMPLETE
             Возвращается, когда воркер успешно завершает свою задачу.
             Содержит в себе свой [id] и [output_path].
         */
-        std::cout << "Worker 1 completed succesfully: " << args.at(2) << std::endl;
+        std::cout << MESSAGE_PREFIX << "\e[0;33mWorker [" + args.at(1) + "] completed succesfully: " << args.at(2) << "\e[0m" << std::endl;
         CommandDispatcher::getInstance().dispatch_command("EXEC FREE " +
                                                           args.at(1));
         break;
@@ -114,4 +123,44 @@ int ResponseHandler::append_resource_collecting(int amount_) {
   rc.active = false;
   is_collecting_now = false;
   return amount_ - amount_left;
+}
+
+void ResponseHandler::solve_worker_fate(ResourseManager::STRATEGY_TYPE strategy, int id) {
+  WorkerMapElem worker = worker_map.get_worker_by_id(id);
+  int limit = worker.limit, hard_limit = worker.min_limit;
+  switch (strategy) {
+    case ResourseManager::STRATEGY_TYPE::NONE: {
+      CommandDispatcher::getInstance().dispatch_command("EXEC DELEGATE " + std::to_string(id) + " " + std::to_string(limit));
+      break;
+    }
+    
+    case ResourseManager::STRATEGY_TYPE::DESOLATE: {
+      // * simply casts desolate directive to all workers
+      ResponseHandler::getInstance().set_resource_collecting(limit, strategy);
+      CommandDispatcher::getInstance().dispatch_command("EXEC DESOLATE");
+      while (ResponseHandler::getInstance().is_collecting_now)
+        ; // * wait till resource collecting ends
+      ResourseManager::STRATEGY_TYPE strategy = rm.delegate_resources(limit, hard_limit, id);
+      CommandDispatcher::getInstance().dispatch_command("EXEC DELEGATE " + std::to_string(id) + " " + std::to_string(limit));
+      break;
+    }
+
+    case ResourseManager::STRATEGY_TYPE::SURRENDER: {
+      // * return by inner channels about failed attempt to allocate resources
+      std::cout << MESSAGE_PREFIX << "Gave up allocating this much resources: " << std::to_string(limit) << std::endl;
+      break;
+    }
+
+    case ResourseManager::STRATEGY_TYPE::QUENED: {
+      WorkerMapElem worker = worker_map.get_worker_by_id(id);
+      wq.append_worker(worker, id);
+      std::cout << MESSAGE_PREFIX << "Quening task associated with worker id: [" + std::to_string(id) + "]" << std::endl;
+      break;
+    }
+
+    case ResourseManager::STRATEGY_TYPE::DIVIDE: {
+      // * do divide tricks
+      break;
+    }
+  }
 }

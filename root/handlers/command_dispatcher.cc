@@ -1,6 +1,6 @@
 #include "command_dispatcher.h"
 
-const std::string MESSAGE_PREFIX = "[CommandDispatcher] ";
+const std::string MESSAGE_PREFIX = "\e[0;32m[CommandDispatcher]\e[0m\t\t ";
 
 bool isInt(const std::string& str) {
   for (char ch : str) {
@@ -13,7 +13,7 @@ bool isInt(const std::string& str) {
 
 int CommandDispatcher::dispatch_command(std::string cmd) {
   std::vector<std::string> args = auto_tokenize(cmd);
-  std::cout << MESSAGE_PREFIX << "Recieved command: " << cmd << std::endl;
+  std::cout << MESSAGE_PREFIX << "Recieved command: \e[0;95m" << cmd << "\e[0m" << std::endl;
   switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
       if (worker_map.count_workers() == 0) {

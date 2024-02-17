@@ -3,17 +3,29 @@
 
 #include <iostream>
 #include <map>
+#include <queue>
 
-class WorkerMap {
- public:
-  class WorkerMapElem {
+class WorkerMapElem {
     public:
     int pid;
     int limit;
     int min_limit;
   WorkerMapElem(int pid_, int limit_, int min_limit_)
       : pid(pid_), limit(limit_), min_limit(min_limit_) {}
-  };
+};
+
+class WaitingQueue {
+  public:
+   std::queue<std::pair<int, WorkerMapElem>> waiting_queue;
+   WaitingQueue(){};
+   void append_worker(WorkerMapElem wme, int id);
+   int pop_worker();
+   bool is_empty();
+   int size();
+};
+
+class WorkerMap {
+ public:
   std::map<int, WorkerMapElem> worker_map;
   WorkerMap(){};
   void append_worker(int id, int pid, int limit, int min_limit);
@@ -26,9 +38,12 @@ class WorkerMap {
   void set_limit(int id, int limit);
   void set_hard_limit(int id, int hard_limit_);
   int gray_resources();
+  WorkerMapElem get_worker_by_id(int id);
 };
 
 extern WorkerMap worker_map;
+
+extern WaitingQueue waiting_queue;
 
 // void append_worker(int id, int pid, int limit);
 // int count_workers();

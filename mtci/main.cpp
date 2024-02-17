@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   int threads_number = 0;
   enum filter_type filter;
 
-  // sleep(5);
+  sleep(1);
 
   std::vector<std::pair<const char *, enum filter_type>> types_avail{
     {"blur", FILTER_BLUR},

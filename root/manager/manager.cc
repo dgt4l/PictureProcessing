@@ -1,11 +1,11 @@
 #include "manager.h"
 
 
-const std::string MESSAGE_PREFIX = "[ResourceManager] ";
+const std::string MESSAGE_PREFIX = "\e[0;32m[ResourceManager]\e[0m\t\t ";
 
 int ResourseManager::calculate_limit(int width_, int height_) {
   std::cout << "Current worker count:" << worker_map.count_workers() << std::endl;
-  if (worker_map.count_workers() == 1) return balance;
+  if (worker_map.count_workers() == 1 && balance > 5) return balance;
   return 5;
 }
 
@@ -32,7 +32,7 @@ ResourseManager::STRATEGY_TYPE ResourseManager::decide_strategy(int amount_) {
   int gray_amount = worker_map.gray_resources();
   std::cout << "Trying to allocate: " << amount_ << "/" << gray_amount << std::endl;
   if (capacity < amount_) return SURRENDER;
-  if (gray_amount < amount_) return SURRENDER; // * but really is QUENED, not implemented
+  if (gray_amount < amount_) return QUENED; // * but really is QUENED, not implemented
   return DESOLATE;
 }
 

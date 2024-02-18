@@ -42,7 +42,7 @@ void WorkerMap::set_hard_limit(int id, int hard_limit_) {
 int WorkerMap::gray_resources(){
   int gray_buffer = 0;
   for(auto it = worker_map.begin(); it != worker_map.end(); ++it){
-    gray_buffer += it->second.limit - it->second.min_limit;
+    gray_buffer += std::max(0, it->second.limit - it->second.min_limit);
   }
   return gray_buffer;
 }

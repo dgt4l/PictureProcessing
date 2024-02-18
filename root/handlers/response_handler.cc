@@ -12,10 +12,12 @@ int ResponseHandler::read_response() {
       case ResponseHandler::RESPONSE_CODES::UNKNOWN: {
         break;
       }
+      
       case ResponseHandler::RESPONSE_CODES::IAMALIVE: {
         worker_map.append_worker(stoi(args.at(1)), stoi(args.at(2)), 0, 0);
         break;
       }
+
       case ResponseHandler::RESPONSE_CODES::DEAD: {
         int id = stoi(args.at(1));
         rm.return_threads(id);
@@ -23,9 +25,9 @@ int ResponseHandler::read_response() {
         for (int i = 0; i < wq.size(); ++i) {
           int candidate = wq.pop_worker();
           std::cout << MESSAGE_PREFIX << "Trying allocate resources for quened worker: " << candidate << std::endl;
-          int limit = worker_map.get_limit(candidate);
           int hard_limit = worker_map.get_hard_limit(candidate);
-          solve_worker_fate(rm.delegate_resources(limit, hard_limit, worker_map.get_limit(candidate)), candidate);
+          int limit = std::max(rm.calculate_balance_space(), hard_limit);
+          solve_worker_fate(rm.delegate_resources(limit, hard_limit, candidate), candidate);
         }
         break;
       }
@@ -59,6 +61,7 @@ int ResponseHandler::read_response() {
         if (is_collecting_now) {
           int gray_amount = stoi(args.at(2)) - worker_map.get_hard_limit(stoi(args.at(1)));
           std::cout << MESSAGE_PREFIX << "Recieved " << stoi(args.at(2)) << ", returning: " << std::to_string(gray_amount) << std::endl;
+          // std::cout << MESSAGE_PREFIX << args.at(0) << args.at(1) << args.at(2) << std::endl;
           append_resource_collecting(gray_amount);
           CommandDispatcher::getInstance().dispatch_command(
               "EXEC DELEGATE " + args.at(1) + " " + std::to_string(gray_amount));

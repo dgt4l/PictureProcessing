@@ -31,7 +31,7 @@ class ResourseManager {
   
   void set_capacity(int capacity_) {capacity = capacity_; balance = capacity;}
 
-  int calculate_limit(int width_, int height_);
+  int calculate_balance_space();
   int calculate_hard_limit(int width_, int height_);
 
   STRATEGY_TYPE delegate_resources(int limit, int hard_limit, int id);

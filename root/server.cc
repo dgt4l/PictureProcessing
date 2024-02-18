@@ -30,14 +30,14 @@ void common_picture_processing(std::string path, std::string filter, int width, 
   while (!worker_map.is_reserved(id))
     ;
   CommandDispatcher::getInstance().dispatch_command("EXEC TASK " + std::to_string(id) + " " + path + " " + filter);
-  int limit = rm.calculate_limit(width, height); // ? return 5
   int hard_limit = rm.calculate_hard_limit(width, height);
+  int limit = std::max(rm.calculate_balance_space(), hard_limit);
   ResourseManager::STRATEGY_TYPE strategy = rm.delegate_resources(limit, hard_limit, id);
   ResponseHandler::getInstance().solve_worker_fate(strategy, id);
 }
 
 int main() {
-  rm.set_capacity(7);
+  rm.set_capacity(30);
 
   pusher.bind(SERVER_PUSHER_SOCKET_PATTERN);
   puller.bind(SERVER_PULLER_SOCKET_PATTERN);
@@ -47,12 +47,19 @@ int main() {
   
   common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  sleep(1);
   common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  sleep(1);
   common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
+  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
+  common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
+  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
+  // common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
+  // common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
+  // common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
+  sleep(3);
+  CommandDispatcher::getInstance().dispatch_command("EXEC STATUS");
+
 
   cd_thread.join();
   rh_thread.join();

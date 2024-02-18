@@ -21,6 +21,7 @@ int CommandDispatcher::dispatch_command(std::string cmd) {
                   << "EXEC command has no effect: no worker available"
                   << std::endl;
       }
+      std::cout << MESSAGE_PREFIX << "Sending command " << worker_map.count_workers() << " times" << std::endl;
       for (int i = 0; i < worker_map.count_workers(); ++i) {
         pusher.send(zmq::buffer(cmd), zmq::send_flags::dontwait);
       }

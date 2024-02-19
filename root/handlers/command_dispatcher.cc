@@ -2,6 +2,8 @@
 
 const std::string MESSAGE_PREFIX = "\e[0;32m[CommandDispatcher]\e[0m\t\t ";
 
+void dispatch_command_thread(std::string cmd, std::vector<std::string> args, const std::list<std::pair<enum CommandDispatcher::CMD_CODES, std::string>> hasher);
+
 bool isInt(const std::string& str) {
   for (char ch : str) {
     if (!isdigit(ch)) {
@@ -14,6 +16,12 @@ bool isInt(const std::string& str) {
 int CommandDispatcher::dispatch_command(std::string cmd) {
   std::vector<std::string> args = auto_tokenize(cmd);
   std::cout << MESSAGE_PREFIX << "Recieved command: \e[0;95m" << cmd << "\e[0m" << std::endl;
+  std::thread dct(dispatch_command_thread, cmd, args, hasher);
+  dct.detach();
+  return 1;
+}
+
+void dispatch_command_thread(std::string cmd, std::vector<std::string> args, const std::list<std::pair<enum CommandDispatcher::CMD_CODES, std::string>> hasher) {
   switch (auto_hash_item(cmd, hasher)) {
     case CommandDispatcher::CMD_CODES::EXEC: {
       if (worker_map.count_workers() == 0) {
@@ -50,12 +58,7 @@ int CommandDispatcher::dispatch_command(std::string cmd) {
       std::cout << MESSAGE_PREFIX << "ahahhahahahahahha vot eblan" << std::endl;
       break;
     }
-    default: {
-      std::cout << "xd" << std::endl;
-      break;
-    }
   }
-  return 1;
 }
 
 int CommandDispatcher::dispatch_command() {

@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 #include <zmq.hpp>
+#include <thread>
+#include <queue>
 
 #include "../../lib/cppzmq/zmq_helpers.hpp"
 #include "manager/manager.h"
@@ -23,31 +25,6 @@ extern WaitingQueue wq;
 
 class ResponseHandler {
  public:
-  bool is_collecting_now = false;
-  struct ResourceCollecting {
-    int current = 0;
-    int target;
-    bool active = false;
-    ResourseManager::STRATEGY_TYPE strategy;
-    ResourceCollecting() : target(0) {}
-    ResourceCollecting(int target_,
-                       ResourseManager::STRATEGY_TYPE strategy_)
-        : target(target_), strategy(strategy_) {}
-    ResourceCollecting(ResourceCollecting &other) {
-      current = other.current;
-      target = other.target;
-      active = other.active;
-      strategy = other.strategy;
-    }
-    bool start_collecting() {
-      if (current >= target) return false;
-      active = true;
-      return true;
-    }
-  };
-  ResourceCollecting rc; 
-
- private:
   enum RESPONSE_CODES {
     UNKNOWN,
     IAMALIVE,
@@ -59,6 +36,41 @@ class ResponseHandler {
     TRANSFER,
     STATUS
   };
+  struct ResourceCollecting {
+    int current = 0;
+    int target;
+    bool active = false;
+    int target_id;
+    ResourseManager::STRATEGY_TYPE strategy;
+    ResourceCollecting() : target(0) {}
+    ResourceCollecting(int target_,
+                       ResourseManager::STRATEGY_TYPE strategy_, int target_id_)
+        : target(target_), strategy(strategy_), current(0), target_id(target_id_) {}
+    ResourceCollecting(const ResourceCollecting &other) {
+      current = other.current;
+      target = other.target;
+      active = other.active;
+      strategy = other.strategy;
+    }
+    ResourceCollecting(ResourceCollecting &&other) {
+      current = other.current;
+      target = other.target;
+      active = other.active;
+      strategy = other.strategy;
+      other.current = 0;
+      other.target = 0;
+      other.active = 0;
+      other.strategy = ResourseManager::STRATEGY_TYPE::NONE;
+    }
+    bool start_collecting() {
+      if (current >= target) return false;
+      active = true;
+      return true;
+    }
+  };
+  std::queue<ResourceCollecting> rc;
+
+ private:
   ResponseHandler() {}
   ResponseHandler(const ResponseHandler&);
   ResponseHandler& operator=(ResponseHandler&);
@@ -78,13 +90,14 @@ class ResponseHandler {
     static ResponseHandler instance;
     return instance;
   }
+  bool is_collecting_now() { return rc.size() > 0; }
   int read_response();
   bool _resource_collecting(int target,
                             ResourseManager::STRATEGY_TYPE strategy_) {}
   
   int solve_transfer_amount(ResourceCollecting rc, int amount);
-  bool set_resource_collecting(int target, ResourseManager::STRATEGY_TYPE strategy_);
-  int append_resource_collecting(int amount);
+  void set_resource_collecting(int target_, enum ResourseManager::STRATEGY_TYPE strategy_, int target_id_);
+  int append_resource_collecting(int amount_);
   void solve_worker_fate(ResourseManager::STRATEGY_TYPE strategy, int id);
 };
 

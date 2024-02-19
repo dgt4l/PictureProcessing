@@ -6,8 +6,8 @@ int RequestHandler::read_request() {
     if (request.length() > 0) {
         std::vector<std::string> args = auto_tokenize(request);
         std::string request_type = args.at(1);
-        std::cout << MESSAGE_PREFIX << "Recieved request: \e[0;95m" << request << "\e[0m" << std::endl;
         if (is_request_belongs(args, worker.id)) {
+            std::cout << MESSAGE_PREFIX << "Recieved request: \e[0;95m" << request << "\e[0m" << std::endl;
             switch (auto_hash_item(request_type, hasher)) {
                 case RequestHandler::REQUEST_CODES::UNKNOWN: {
                     std::cout << MESSAGE_PREFIX << " Unknown request, ignoring it" << std::endl;

@@ -37,7 +37,7 @@ void common_picture_processing(std::string path, std::string filter, int width, 
 }
 
 int main() {
-  rm.set_capacity(30);
+  rm.set_capacity(50);
 
   pusher.bind(SERVER_PUSHER_SOCKET_PATTERN);
   puller.bind(SERVER_PULLER_SOCKET_PATTERN);
@@ -47,20 +47,9 @@ int main() {
   
   common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
-  common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
-  // common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  // common_picture_processing("../materials/arbuz.png", "NEGATIVE", 1, 1);
-  // common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
-  sleep(3);
-  CommandDispatcher::getInstance().dispatch_command("EXEC STATUS");
-
-
+   common_picture_processing("../materials/50.png", "NEGATIVE", 1, 1);
   cd_thread.join();
   rh_thread.join();
   return 0;

@@ -1,5 +1,7 @@
 #include "response_handler.h"
 
+void wait_collection_end_thread(int limit, int hard_limit, int id);
+
 const std::string MESSAGE_PREFIX = "\e[0;32m[ResponseHandler]\e[0m\t\t ";
 
 int ResponseHandler::read_response() {
@@ -58,17 +60,29 @@ int ResponseHandler::read_response() {
       }
 
       case ResponseHandler::RESPONSE_CODES::TRANSFER: {
-        if (is_collecting_now) {
-          int gray_amount = stoi(args.at(2)) - worker_map.get_hard_limit(stoi(args.at(1)));
-          std::cout << MESSAGE_PREFIX << "Recieved " << stoi(args.at(2)) << ", returning: " << std::to_string(gray_amount) << std::endl;
-          // std::cout << MESSAGE_PREFIX << args.at(0) << args.at(1) << args.at(2) << std::endl;
-          append_resource_collecting(gray_amount);
-          CommandDispatcher::getInstance().dispatch_command(
-              "EXEC DELEGATE " + args.at(1) + " " + std::to_string(gray_amount));
+        int amount = stoi(args.at(2)), id = stoi(args.at(1));
+        if (rc.size() > 0 && amount != 0) {
+          ResourceCollecting current_rc = rc.front();
+          if (current_rc.target_id != id) {
+            int hard_limit = worker_map.get_hard_limit(stoi(args.at(1)));
+            int gray_amount = std::max(0, stoi(args.at(2)) - hard_limit);
+            int new_gray_amount = append_resource_collecting(gray_amount);
+            std::cout << MESSAGE_PREFIX << "Recieved " << stoi(args.at(2)) << ", returning: " << std::to_string(new_gray_amount) << std::endl;
+            if (!is_collecting_now()) {
+              std::cout << MESSAGE_PREFIX << "Collection completed:" + std::to_string(current_rc.current) + "/" + std::to_string(current_rc.target) << std::endl;
+              rm.modify_balance(current_rc.current);
+            } else {
+              std::cout << MESSAGE_PREFIX << "Still not reached, balance: " + std::to_string(current_rc.current) + "/" + std::to_string(current_rc.target) << std::endl;
+            }
+            CommandDispatcher::getInstance().dispatch_command(
+                "EXEC DELEGATE " + args.at(1) + " " + std::to_string(hard_limit + new_gray_amount));
+          } else {
+            std::cout << MESSAGE_PREFIX << "Ignored desolate for id: " << id << std::endl;
+          }
         } else {
           // * return resource (we do not need them anymore)
           CommandDispatcher::getInstance().dispatch_command(
-              "EXEC DELEGATE " + args.at(1) + " " + args.at(2));
+              "EXEC DELEGATE " + args.at(1) + " " + std::to_string(worker_map.get_limit(id)));
         }
         break;
       }
@@ -81,8 +95,12 @@ int ResponseHandler::read_response() {
   return 1;
 }
 
+void read_response_thread() {
+  
+}
+
 int ResponseHandler::solve_transfer_amount(ResourceCollecting rc, int amount) {
-  if (!(is_collecting_now && rc.active)) return 0;
+  if (!(is_collecting_now() && rc.active)) return 0;
   switch (rc.strategy) {
     case ResourseManager::DESOLATE: {
       int amount_left = rc.target - rc.current;
@@ -92,7 +110,6 @@ int ResponseHandler::solve_transfer_amount(ResourceCollecting rc, int amount) {
         return 0;
       }
       // * get only needed amount
-      rc.active = is_collecting_now = false;
       return amount - amount_left;
     }
 
@@ -102,11 +119,10 @@ int ResponseHandler::solve_transfer_amount(ResourceCollecting rc, int amount) {
   }
 }
 
-bool ResponseHandler::set_resource_collecting(int target_, enum ResourseManager::STRATEGY_TYPE strategy_) {
-  if (is_collecting_now) return false;
-  is_collecting_now = true;
-  rc = ResourceCollecting(target_, strategy_);
-  return rc.start_collecting();
+void ResponseHandler::set_resource_collecting(int target_, enum ResourseManager::STRATEGY_TYPE strategy_, int target_id_) {
+  ResourceCollecting new_rc(target_, strategy_, target_id_);
+  rc.push(new_rc);
+  // std::cout << MESSAGE_PREFIX << "Start collecting resources: " << rc.current << "/" << rc.target << "[" << target_id_ << "]" << std::endl;
 }
 
 /**
@@ -116,15 +132,15 @@ bool ResponseHandler::set_resource_collecting(int target_, enum ResourseManager:
  * @return int amount to return to the worker
  */
 int ResponseHandler::append_resource_collecting(int amount_) {
-  if (!is_collecting_now) return amount_;
-  int amount_left = rc.target - rc.current;
+  std::cout << "input:" << amount_ << std::endl;
+  ResourceCollecting current_rc = rc.front();
+  int amount_left = current_rc.target - current_rc.current;
   if (amount_left > amount_) {
-    rc.current += amount_;
+    current_rc.current += amount_;
     return 0;
   }
-  rc.current = rc.target;
-  rc.active = false;
-  is_collecting_now = false;
+  current_rc.current = current_rc.target;
+  rc.pop();
   return amount_ - amount_left;
 }
 
@@ -139,12 +155,10 @@ void ResponseHandler::solve_worker_fate(ResourseManager::STRATEGY_TYPE strategy,
     
     case ResourseManager::STRATEGY_TYPE::DESOLATE: {
       // * simply casts desolate directive to all workers
-      ResponseHandler::getInstance().set_resource_collecting(limit, strategy);
+      ResponseHandler::getInstance().set_resource_collecting(hard_limit, strategy, id);
       CommandDispatcher::getInstance().dispatch_command("EXEC DESOLATE");
-      while (ResponseHandler::getInstance().is_collecting_now)
-        ; // * wait till resource collecting ends
-      ResourseManager::STRATEGY_TYPE strategy = rm.delegate_resources(limit, hard_limit, id);
-      CommandDispatcher::getInstance().dispatch_command("EXEC DELEGATE " + std::to_string(id) + " " + std::to_string(limit));
+      std::thread wcet(wait_collection_end_thread, limit, hard_limit, id);
+      wcet.detach();
       break;
     }
 
@@ -166,4 +180,12 @@ void ResponseHandler::solve_worker_fate(ResourseManager::STRATEGY_TYPE strategy,
       break;
     }
   }
+}
+
+void wait_collection_end_thread(int limit, int hard_limit, int id) {
+  while (ResponseHandler::getInstance().is_collecting_now() && ResponseHandler::getInstance().rc.front().target_id == id)
+        ; // * wait till resource collecting ends
+  std::cout << MESSAGE_PREFIX << "Resources collection ends for id: " << std::to_string(id) << std::endl;
+  ResourseManager::STRATEGY_TYPE strategy = rm.delegate_resources(limit, hard_limit, id);
+  CommandDispatcher::getInstance().dispatch_command("EXEC DELEGATE " + std::to_string(id) + " " + std::to_string(std::max(limit, hard_limit)));
 }

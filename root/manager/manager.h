@@ -13,9 +13,9 @@
 class ResourseManager {
  private:
   // * how much threads available for new workers
-  int balance;
   // * maximum threads capacity for swarm
   int capacity;
+  int balance;
 
  public:
   enum STRATEGY_TYPE {
@@ -30,6 +30,8 @@ class ResourseManager {
       : balance(capacity_), capacity(capacity_) {}
   
   void set_capacity(int capacity_) {capacity = capacity_; balance = capacity;}
+
+  void modify_balance(int amount_) {balance += amount_;}
 
   int calculate_balance_space();
   int calculate_hard_limit(int width_, int height_);

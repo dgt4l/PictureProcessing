@@ -18,7 +18,7 @@ extern zmq::socket_t pusher;
 
 class Response {
   public:
-    enum RESPONSE_CODES { UNKNOWN, IAMALIVE, DEAD, COMPLETE, BUSY, TOOSWEET, SHORTAGE, TRANSFER, STATUS };
+    enum RESPONSE_CODES { UNKNOWN, IAMALIVE, DEAD, COMPLETE, BUSY, TOOSWEET, SHORTAGE, TRANSFER, STATUS, GOTWORK };
     const std::list<std::pair<enum RESPONSE_CODES, std::string>> hasher = 
         {
           std::make_pair(UNKNOWN, std::string("UNKNOWN")),
@@ -29,7 +29,8 @@ class Response {
           std::make_pair(TOOSWEET, std::string("TOOSWEET")),
           std::make_pair(SHORTAGE, std::string("SHORTAGE")),
           std::make_pair(TRANSFER, std::string("TRANSFER")),
-          std::make_pair(STATUS, std::string("STATUS"))
+          std::make_pair(STATUS, std::string("STATUS")),
+          std::make_pair(GOTWORK, std::string("GOTWORK"))
         };
     virtual std::string to_string() {
       return "";

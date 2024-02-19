@@ -90,7 +90,7 @@ class RequestHandler {
       static RequestHandler instance;
       return instance;
     }
-    int read_request();
+    int read_request(std::string request);
 };
 
 void working_thread();

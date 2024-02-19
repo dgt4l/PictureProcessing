@@ -11,8 +11,10 @@ const std::string SERVER_PUSHER_SOCKET_PATTERN = "tcp://127.0.0.1:5555";
 const std::string SERVER_PULLER_SOCKET_PATTERN = "tcp://127.0.0.1:5556";
 
 void request_handler_thread() {
-  while (RequestHandler::getInstance().read_request())
-    ;
+  std::string request = s_recv(puller, ZMQ_DONTWAIT);
+  while (RequestHandler::getInstance().read_request(request)) {
+    request = s_recv(puller, ZMQ_DONTWAIT);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -36,7 +38,11 @@ int main(int argc, char *argv[]) {
 
   rh_thread.join();
 
+  puller.close();
+  
   SimpleResponse dead_r(Response::DEAD, id);
   dead_r.dispatch_response();
+
+  pusher.close();
   return 0;
 }

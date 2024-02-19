@@ -34,7 +34,8 @@ class ResponseHandler {
     TOOSWEET,
     SHORTAGE,
     TRANSFER,
-    STATUS
+    STATUS,
+    GOTWORK
   };
   struct ResourceCollecting {
     int current = 0;
@@ -83,7 +84,9 @@ class ResponseHandler {
       std::make_pair(TOOSWEET, std::string("TOOSWEET")),
       std::make_pair(SHORTAGE, std::string("SHORTAGE")),
       std::make_pair(TRANSFER, std::string("TRANSFER")),
-      std::make_pair(STATUS, std::string("STATUS"))};
+      std::make_pair(STATUS, std::string("STATUS")),
+      std::make_pair(GOTWORK, std::string("GOTWORK"))
+    };
 
  public:
   static ResponseHandler& getInstance() {

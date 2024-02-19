@@ -10,6 +10,7 @@ class WorkerMapElem {
     int pid;
     int limit;
     int min_limit;
+    bool is_working = false;
   WorkerMapElem(int pid_, int limit_, int min_limit_)
       : pid(pid_), limit(limit_), min_limit(min_limit_) {}
 };
@@ -35,6 +36,8 @@ class WorkerMap {
   int get_limit(int id);
   int get_hard_limit(int id);
   void remove_worker(int id);
+  void set_is_working(int id);
+  bool is_gotwork(int id);
   void set_limit(int id, int limit);
   void set_hard_limit(int id, int hard_limit_);
   int gray_resources();

@@ -1,13 +1,13 @@
 #include "request_handler.h"
 
-int RequestHandler::read_request() {
+int RequestHandler::read_request(std::string request) {
     std::string MESSAGE_PREFIX = "\e[0;36m[RequestHandler:" + std::to_string(worker.id) + "]\e[0m\t\t ";
-    std::string request = s_recv(puller, ZMQ_DONTWAIT);
+    // std::string request = s_recv(puller, ZMQ_DONTWAIT);
     if (request.length() > 0) {
+        std::cout << MESSAGE_PREFIX << "Recieved request: \e[0;95m" << request << "\e[0m" << std::endl;
         std::vector<std::string> args = auto_tokenize(request);
         std::string request_type = args.at(1);
         if (is_request_belongs(args, worker.id)) {
-            std::cout << MESSAGE_PREFIX << "Recieved request: \e[0;95m" << request << "\e[0m" << std::endl;
             switch (auto_hash_item(request_type, hasher)) {
                 case RequestHandler::REQUEST_CODES::UNKNOWN: {
                     std::cout << MESSAGE_PREFIX << " Unknown request, ignoring it" << std::endl;
@@ -39,6 +39,8 @@ int RequestHandler::read_request() {
                     if (worker.s == Worker::Status::IDLE) {
                         worker.set_task(args.at(3), auto_hash_item(args.at(4), worker.task.filter_hasher));
                         worker.s = Worker::Status::READY;
+                        SimpleResponse r(Response::GOTWORK, std::to_string(worker.id));
+                        r.dispatch_response();
                     } else {
                         SimpleResponse r(Response::BUSY, std::to_string(worker.id));
                         r.dispatch_response();
@@ -71,7 +73,7 @@ int RequestHandler::read_request() {
                         switch (worker.s) {
                             case Worker::Status::READY: {
                                 worker.limit = request_amount;
-                                worker.s = Worker::Status::WORKING;\
+                                worker.s = Worker::Status::WORKING;
                                 std::thread wt_thread(working_thread);
                                 wt_thread.detach();
                                 break;

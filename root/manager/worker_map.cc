@@ -17,6 +17,8 @@ int WorkerMap::get_limit(int id) { return worker_map.at(id).limit; }
 
 int WorkerMap::get_hard_limit(int id) { return worker_map.at(id).min_limit; }
 
+bool WorkerMap::is_gotwork(int id) { return worker_map.at(id).is_working; }
+
 bool WorkerMap::is_reserved(int id) {
   auto it = worker_map.find(id);
   if (it == worker_map.end()) {
@@ -37,6 +39,10 @@ void WorkerMap::set_limit(int id, int limit_) {
 
 void WorkerMap::set_hard_limit(int id, int hard_limit_) {
   worker_map.at(id).min_limit = hard_limit_;
+}
+
+void WorkerMap::set_is_working(int id) {
+  worker_map.at(id).is_working = true;
 }
 
 int WorkerMap::gray_resources(){

@@ -4,11 +4,11 @@
 const std::string MESSAGE_PREFIX = "\e[0;32m[ResourceManager]\e[0m\t\t ";
 
 int ResourseManager::calculate_balance_space() {
-  return balance;
+  return 1;
 }
 
 int ResourseManager::calculate_hard_limit(int width_, int height_) {
-  return 5;
+  return 1;
 }
 
 

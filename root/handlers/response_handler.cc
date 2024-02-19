@@ -90,6 +90,11 @@ int ResponseHandler::read_response() {
       case ResponseHandler::RESPONSE_CODES::STATUS: {
         break;
       }
+      case ResponseHandler::RESPONSE_CODES::GOTWORK: {
+        int id = stoi(args.at(1));
+        worker_map.set_is_working(id);
+        break;
+      }
     }
   }
   return 1;
